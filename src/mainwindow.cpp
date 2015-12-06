@@ -208,6 +208,11 @@ void MainWindow::restoreUI()
 //==============================================================================
 void MainWindow::updateMenu()
 {
+    // Set Button Enabled
+    ui->zoomOutButton->setEnabled(zoomLevelIndex > 0);
+    ui->zoomInButton->setEnabled(zoomLevelIndex < DEFAULT_ZOOM_LEVEL_INDEX_MAX);
+    ui->zoomToFitButton->setEnabled(!zoomFit);
+
     // ...
 }
 
@@ -441,7 +446,7 @@ void MainWindow::setPanPosX(const qreal& aPanPosX)
 
     // Check Current Pan Pos X
     if (panPosX != newPanPosX) {
-        qDebug() << "MainWindow::setPanPosX - newPanPosX: " << newPanPosX;
+        //qDebug() << "MainWindow::setPanPosX - newPanPosX: " << newPanPosX;
 
         // Set Current Pan Pos X
         //panPosX = aPanPosX;
@@ -487,7 +492,7 @@ void MainWindow::setPanPosY(const qreal& aPanPosY)
 
     // Check Current Pan Pos X
     if (panPosY != newPanPosY) {
-        qDebug() << "MainWindow::setPanPosY - newPanPosY: " << newPanPosY;
+        //qDebug() << "MainWindow::setPanPosY - newPanPosY: " << newPanPosY;
 
         // Set Current Pan Pos X
         panPosY = newPanPosY;
@@ -1159,8 +1164,19 @@ void MainWindow::zoomIn()
 
     // Check Zoom Fit
     if (zoomFit) {
-        // Zoom Default
-        zoomDefault();
+        // Reset Zoom Fit
+        zoomFit = false;
+        // Reset Zoom Level Index
+        zoomLevelIndex = 0;
+        // Iterate Through Zoom Levels
+        while (zoomLevels[zoomLevelIndex] < zoomLevel && zoomLevelIndex < DEFAULT_ZOOM_LEVEL_INDEX_MAX) {
+            // Inc Zoom Level
+            zoomLevelIndex++;
+        }
+
+        // Set Zoom Level
+        setZoomLevel(zoomLevels[zoomLevelIndex]);
+
     } else {
         // Check Zoom Level Index
         if (zoomLevelIndex < DEFAULT_ZOOM_LEVEL_INDEX_MAX) {
@@ -1195,8 +1211,19 @@ void MainWindow::zoomOut()
 
     // Check Zoom Fit
     if (zoomFit) {
-        // Zoom Default
-        zoomDefault();
+        // reset Zoom Fit
+        zoomFit = false;
+        // Reset Zoom Level Index
+        zoomLevelIndex = DEFAULT_ZOOM_LEVEL_INDEX_MAX;
+
+        while (zoomLevels[zoomLevelIndex] > zoomLevel && zoomLevelIndex > 0) {
+            // Dec Zoom Level Index
+            zoomLevelIndex--;
+        }
+
+        // Set Zoom Level
+        setZoomLevel(zoomLevels[zoomLevelIndex]);
+
     } else {
         // Check Zoom Level Index
         if (zoomLevelIndex > 0) {
@@ -1280,6 +1307,9 @@ void MainWindow::zoomToFit()
         // Reset Pan Pos Y
         setPanPosY(0.0);
     }
+
+    // Update Menu
+    updateMenu();
 }
 
 //==============================================================================
@@ -1295,6 +1325,9 @@ void MainWindow::reset()
 
     // Zoom Default
     zoomDefault();
+
+    // Update Menu
+    updateMenu();
 }
 
 //==============================================================================

@@ -157,6 +157,9 @@ protected:
     // Init Worker
     void initWorker();
 
+    // Set Match
+    void setMatch(const bool& aMatch);
+
     // Set Status
     void setStatus(const int& aStatus);
 

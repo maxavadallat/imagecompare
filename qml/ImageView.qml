@@ -9,7 +9,7 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: side === "left" ? "#44777700" : "#44007777"
+        color: "gray"
     }
 
     Image {
@@ -47,17 +47,60 @@ Item {
         anchors.bottomMargin: 32
 
         text: "No Image"
+
         opacity: {
             var fileName = side === "left" ? mainViewController.currentFileLeft : mainViewController.currentFileRight;
-            if (fileName == "") {
+            if (fileName === "") {
                 return 1.0;
             }
 
             return 0.0;
         }
+
         Behavior on opacity { NumberAnimation { duration: 200 } }
         visible: opacity > 0.0
         color: "#77FFFFFF"
+    }
+
+    Rectangle {
+        id: dropIndicator
+        anchors.fill: parent
+        color: "transparent"
+        border.width: 2
+        border.color: "orange"
+        visible: dropArea.containsDrag
+    }
+
+    DropArea {
+        id: dropArea
+        anchors.fill: parent
+
+        onDropped: {
+            //console.log("dropArea.onDropped - text: " + drop.urls);
+
+            // Get File Name
+            var fileName = drop.urls[0];
+
+            // Check File Name
+            if (fileName.indexOf("file://") === 0) {
+
+                drop.accept();
+
+                // Adjust File Name
+                fileName = fileName.slice(7, fileName.length);
+
+                //console.log("dropArea.onDropped - fileName: " + fileName);
+
+                // Check Side
+                if (side === "left") {
+                    // Set Left File
+                    mainViewController.currentFileLeft = fileName;
+                } else {
+                    // Set Left File
+                    mainViewController.currentFileRight = fileName;
+                }
+            }
+        }
     }
 }
 

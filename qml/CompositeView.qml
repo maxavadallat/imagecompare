@@ -39,7 +39,7 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: "#44770077"
+        color: "gray"
     }
 /*
     Image {
@@ -93,7 +93,8 @@ Item {
 
         smooth: false
 
-        opacity: mainViewController.opacityRight
+        //opacity: mainViewController.opacityRight
+        opacity: 0.5
         Behavior on opacity { NumberAnimation { duration: Const.defaultAnimDuration } }
         visible: opacity > 0.0
 
@@ -174,12 +175,31 @@ Item {
         }
     }
 
-//    Rectangle {
-//        anchors.fill: parent
-//        //color: "#1100"
-//    }
+    Image {
+        id: compareImage
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 84
 
-    // ...
+        opacity: 0.5
+        Behavior on opacity { NumberAnimation { duration: Const.defaultAnimDuration } }
 
+        source: "qrc:/resources/images/icons/compare-orange-128.png"
+
+        visible: (compositor.status === 1)
+
+        Timer {
+            repeat: true
+            interval: Const.defaultAnimDuration * 2
+            running: compareImage.visible
+            onTriggered: {
+                if (compareImage.opacity == 0.5) {
+                    compareImage.opacity = 0.1;
+                } else {
+                    compareImage.opacity = 0.5;
+                }
+            }
+        }
+    }
 }
 

@@ -66,7 +66,21 @@ void Compositor::initWorker()
     // Start Worker Thread
     workerThread.start();
     // Set Priprity
-    workerThread.setPriority(QThread::TimeCriticalPriority);
+    workerThread.setPriority(QThread::IdlePriority);
+}
+
+//==============================================================================
+// Set Match
+//==============================================================================
+void Compositor::setMatch(const bool& aMatch)
+{
+    // Check Match
+    if (match != aMatch) {
+        // Set Match
+        match = aMatch;
+        // Emit Match Changed Signal
+        emit matchChanged(match);
+    }
 }
 
 //==============================================================================
@@ -167,7 +181,9 @@ QString Compositor::getCurrentFileLeft()
 void Compositor::setCurrentFileLeft(const QString& aCurrentFile)
 {
     // Check Current File
-    if (currentFileLeft != aCurrentFile) {
+    if (currentFileLeft != aCurrentFile && aCurrentFile != "") {
+        // Set Match
+        setMatch(false);
         // Set Status
         setStatus(CSBusy);
         // Set Operation
@@ -210,7 +226,9 @@ QString Compositor::getCurrentFileRight()
 void Compositor::setCurrentFileRight(const QString& aCurrentFile)
 {
     // Check Current File
-    if (currentFileRight != aCurrentFile) {
+    if (currentFileRight != aCurrentFile && aCurrentFile != "") {
+        // Set Match
+        setMatch(false);
         // Set Status
         setStatus(CSBusy);
         // Set Operation
@@ -253,7 +271,9 @@ qreal Compositor::getZoomLevel()
 void Compositor::setZoomLevel(const qreal& aZoomLevel)
 {
     // Check Current Zoom LEvel
-    if (zoomLevel != aZoomLevel && aZoomLevel > 0.0) {
+    if (zoomLevel != aZoomLevel && aZoomLevel > 0.0 && (currentFileLeft != "" || currentFileRight != "")) {
+        // Set Match
+        setMatch(false);
         // Set Status
         setStatus(CSBusy);
         // Set Operation
@@ -290,7 +310,9 @@ qreal Compositor::getPanPosX()
 void Compositor::setPanPosX(const qreal& aPanPosX)
 {
     // Check Current Pan Pos X
-    if (panPosX != aPanPosX) {
+    if (panPosX != aPanPosX && (currentFileLeft != "" || currentFileRight != "")) {
+        // Set Match
+        setMatch(false);
         // Set Status
         setStatus(CSBusy);
         // Set Operation
@@ -327,7 +349,9 @@ qreal Compositor::getPanPosY()
 void Compositor::setPanPosY(const qreal& aPanPosY)
 {
     // Check Current Pan Pos X
-    if (panPosY != aPanPosY) {
+    if (panPosY != aPanPosY && (currentFileLeft != "" || currentFileRight != "")) {
+        // Set Match
+        setMatch(false);
         // Set Status
         setStatus(CSBusy);
         // Set Operation
@@ -363,7 +387,7 @@ void Compositor::paint(QPainter* aPainter)
         aPainter->save();
 
         // Set Opacity
-        //aPainter->setOpacity(opacityLeft);
+        aPainter->setOpacity(1.0);
 
         // Check Left Scaled Image
         if (imageScaledLeft.width() > 0 && imageScaledLeft.height() > 0) {
@@ -371,7 +395,7 @@ void Compositor::paint(QPainter* aPainter)
         }
 
         // Set Opacity
-        //aPainter->setOpacity(opacityRight);
+        aPainter->setOpacity(0.5);
 
         // Check Right Scaled Image
         if (imageScaledRight.width() > 0 && imageScaledRight.height() > 0) {
@@ -508,9 +532,6 @@ void Compositor::updateRightTargetRect()
 //==============================================================================
 void Compositor::compareImages()
 {
-    // Reset Match
-    match = false;
-
     // Get Left Image Width
     int lWidth = sourceRectLeft.width();
     // Get Left Image Height
@@ -524,26 +545,37 @@ void Compositor::compareImages()
         return;
     }
 
-    qDebug() << "#### Compositor::compareImages";
-
     // Check Source Sizes
     if (sourceRectLeft.width() == sourceRectRight.width() && sourceRectLeft.height() == sourceRectRight.height()) {
-        // Iterate Thru Image's Source Pixels
-        for (int y = sourceRectRight.y(); y < lHeight; ++y) {
-            for (int x = sourceRectRight.x(); x < lWidth; ++ x) {
-                if (imageLeft.pixel(x, y) != imageRight.pixel(x, y)) {
-                    // Emit Match Changed Signal
-                    emit matchChanged(match);
 
+        qDebug() << "Compositor::compareImages - [" << lWidth << "x" << lHeight << "]@[" << sourceRectLeft.x() << ":" << sourceRectLeft.y() << "]";
+
+        // Iterate Thru Image's Source Pixels
+        for (int y = sourceRectRight.y(); y < sourceRectRight.y() + lHeight && y < imageScaledLeft.height(); ++y) {
+            for (int x = sourceRectRight.x(); x < sourceRectRight.x() + lWidth && x < imageScaledLeft.width(); ++x) {
+
+                if (x & 0x2) {
+                    fprintf(stderr, ".");
+                }
+
+                if (imageScaledLeft.pixel(x, y) != imageScaledRight.pixel(x, y)) {
+                    qDebug() << "Compositor::compareImages - no match";
+
+                    fprintf(stderr, "\n");
+
+                    // Set Match
+                    setMatch(false);
                     return;
                 }
             }
+
+            fprintf(stderr, "\n");
         }
 
         // Set Match
-        match = true;
-        // Emit Match Changed Signal
-        emit matchChanged(match);
+        setMatch(true);
+
+        qDebug() << "Compositor::compareImages - done";
     }
 }
 
@@ -615,7 +647,17 @@ void Compositor::workerResultReady(const int& aOperation, const int& aResult)
         case COTUpdateRects:
             // Update
             update();
-        break;
+            // Set Status
+            setStatus(CSIdle);
+
+            // Set Operation
+            setOperation(COTCompareImages);
+            // Set Status
+            setStatus(CSBusy);
+
+            // Emit Signal to Start Operation
+            emit operateWorker(COTCompareImages);
+        return;
 
         default:
             qDebug() << "Compositor::workerResultReady - aOperation: " << aOperation << " - aResult: " << aResult;
@@ -634,12 +676,14 @@ void Compositor::geometryChanged(const QRectF& aNewGeometry, const QRectF& aOldG
     // Calling Super Geometry Changed
     QQuickPaintedItem::geometryChanged(aNewGeometry, aOldGeometry);
 
-    qDebug() << "Compositor::geometryChanged - aNewGeometry: " << aNewGeometry;
+    //qDebug() << "Compositor::geometryChanged - aNewGeometry: " << aNewGeometry;
 
-    // Init Worker
-    initWorker();
-    // Emit Signal to Start Operation
-    emit operateWorker(COTUpdateRects);
+    if (currentFileLeft != "" || currentFileRight != "") {
+        // Init Worker
+        initWorker();
+        // Emit Signal to Start Operation
+        emit operateWorker(COTUpdateRects);
+    }
 }
 
 //==============================================================================

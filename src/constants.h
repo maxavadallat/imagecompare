@@ -78,7 +78,7 @@
 // Default Settings Values
 
 #define DEFAULT_ZOOM_LEVEL_INDEX                        4
-#define DEFAULT_ZOOM_LEVEL_INDEX_MAX                    7
+#define DEFAULT_ZOOM_LEVEL_INDEX_MAX                    6
 
 const qreal zoomLevels[] = { 0.10, 0.25, 0.50, 0.75, 1.00, 2.00, 4.00, 8.00, 16.00, 100.00};
 
