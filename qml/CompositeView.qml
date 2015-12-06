@@ -121,6 +121,16 @@ Item {
         panPosX: mainViewController.panPosX
         panPosY: mainViewController.panPosY
 
+        onStatusChanged: {
+            console.log("compositor.onStatusChanged - status: " + compositor.status + " - operation: " + compositor.operation);
+
+            // Check Last Operation
+            if (compositor.operation === 1 && compositor.status === 0) {
+                // Update Pan Positions
+                mainViewController.updatePanPositions();
+            }
+        }
+
         onCompositeWidthChanged: {
             // Set Composite Width
             compositorViewController.compositeWidth = aCompositeWidth;

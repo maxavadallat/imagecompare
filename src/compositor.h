@@ -14,7 +14,8 @@ class CompositorWorker;
 //==============================================================================
 enum COperationType
 {
-    COTScaleImages = 0,
+    COTNoOperation      = 0,
+    COTScaleImages,
     COTScaleLeftImage,
     COTScaleRightImage,
     COTCompareImages,
@@ -22,6 +23,7 @@ enum COperationType
     COTUpdateLeftRects,
     COTUpdateRightRects,
 };
+
 
 
 //==============================================================================
@@ -34,6 +36,7 @@ class Compositor : public QQuickPaintedItem
     Q_PROPERTY(bool match READ getMatch NOTIFY matchChanged)
 
     Q_PROPERTY(int status READ getStatus NOTIFY statusChanged)
+    Q_PROPERTY(int operation READ getOperation NOTIFY operationChanged)
 
     Q_PROPERTY(QString currentFileLeft READ getCurrentFileLeft WRITE setCurrentFileLeft NOTIFY currentFileLeftChanged)
     Q_PROPERTY(QString currentFileRight READ getCurrentFileRight WRITE setCurrentFileRight NOTIFY currentFileRightChanged)
@@ -51,6 +54,15 @@ class Compositor : public QQuickPaintedItem
 
 public:
 
+    // Compositor Status Type
+    enum CompositorStatusType
+    {
+        CSIdle = 0,
+        CSBusy
+    };
+
+    Q_ENUMS(CompositorStatusType)
+
     // Constructor
     Compositor(QQuickItem* aParent = NULL);
 
@@ -59,6 +71,9 @@ public:
 
     // Get Status
     int getStatus();
+
+    // Get Oparation
+    int getOperation();
 
     // Get Source Composite Width
     qreal getSourceCompositeWidth();
@@ -98,7 +113,6 @@ public:
     // Paint
     virtual void paint(QPainter* aPainter);
 
-
     // Destructor
     ~Compositor();
 
@@ -119,6 +133,8 @@ signals:
 
     // Status Changed Signal
     void statusChanged(const int& aStatus);
+    // Oparation Changed Signal
+    void operationChanged(const int& aOperation);
 
     // Current Left File Changed Signal
     void currentFileLeftChanged(const QString& aCurrentFile);
@@ -140,6 +156,12 @@ protected:
 
     // Init Worker
     void initWorker();
+
+    // Set Status
+    void setStatus(const int& aStatus);
+
+    // Set Operation
+    void setOperation(const int& aOperation);
 
     // Update Scaled Images According to Zoom Level
     void updateScaledImages();
@@ -186,6 +208,8 @@ private:
 
     // Status
     int                 status;
+    // Operation
+    int                 operation;
 
     // Match
     bool                match;

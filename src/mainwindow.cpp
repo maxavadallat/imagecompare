@@ -385,6 +385,30 @@ void MainWindow::setZoomLevel(const qreal& aZoomLevel)
 }
 
 //==============================================================================
+// Refresh View
+//==============================================================================
+void MainWindow::refreshView(const int& aIndex)
+{
+    qDebug() << "MainWindow::refreshView";
+
+    // ...
+}
+
+//==============================================================================
+// Update Pan Positions
+//==============================================================================
+void MainWindow::updatePanPositions()
+{
+    qDebug() << "MainWindow::updatePanPositions";
+
+    // Set Pan Pos X for Boundaries Adjusted
+    setPanPosX(panPosX);
+    // Set Pan Pos Y for Boundaries Adjusted
+    setPanPosY(panPosY);
+
+}
+
+//==============================================================================
 // Get Pan Pos X
 //==============================================================================
 qreal MainWindow::getPanPosX()
@@ -417,7 +441,7 @@ void MainWindow::setPanPosX(const qreal& aPanPosX)
 
     // Check Current Pan Pos X
     if (panPosX != newPanPosX) {
-        //qDebug() << "MainWindow::setPanPosX - newPanPosX: " << newPanPosX;
+        qDebug() << "MainWindow::setPanPosX - newPanPosX: " << newPanPosX;
 
         // Set Current Pan Pos X
         //panPosX = aPanPosX;
@@ -463,7 +487,7 @@ void MainWindow::setPanPosY(const qreal& aPanPosY)
 
     // Check Current Pan Pos X
     if (panPosY != newPanPosY) {
-        //qDebug() << "MainWindow::setPanPosY - newPanPosY: " << newPanPosY;
+        qDebug() << "MainWindow::setPanPosY - newPanPosY: " << newPanPosY;
 
         // Set Current Pan Pos X
         panPosY = newPanPosY;
@@ -1251,6 +1275,10 @@ void MainWindow::zoomToFit()
 
         // Set Zoom Level
         setZoomLevel(newZoomLevel);
+        // Reset Pan Pos X
+        setPanPosX(0.0);
+        // Reset Pan Pos Y
+        setPanPosY(0.0);
     }
 }
 
@@ -1267,16 +1295,6 @@ void MainWindow::reset()
 
     // Zoom Default
     zoomDefault();
-}
-
-//==============================================================================
-// Refresh View
-//==============================================================================
-void MainWindow::refreshView(const int& aIndex)
-{
-    qDebug() << "MainWindow::refreshView";
-
-    // ...
 }
 
 //==============================================================================

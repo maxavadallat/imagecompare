@@ -164,6 +164,9 @@ public slots:
     // Reset Zoom & Pan Position
     void reset();
 
+    // Update Pan Positions
+    void updatePanPositions();
+
 signals:
 
     // Current Dir Changed Signal
@@ -226,6 +229,9 @@ private slots:
     // Set Zoom Level
     void setZoomLevel(const qreal& aZoomLevel);
 
+    // Refresh View
+    void refreshView(const int& aIndex);
+
     // Open Left File Button Clicked Slot
     void on_openLeftButton_clicked();
     // Open Right File Button Clicked Slot
@@ -262,9 +268,6 @@ private slots:
     void on_exitButton_clicked();
 
 protected:
-
-    // Refresh View
-    void refreshView(const int& aIndex);
 
     // Timer Event
     virtual void timerEvent(QTimerEvent* aEvent);

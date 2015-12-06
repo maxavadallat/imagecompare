@@ -12,7 +12,8 @@
 Compositor::Compositor(QQuickItem* aParent)
     : QQuickPaintedItem(aParent)
     , mainWindow(NULL)
-    , status(0)
+    , status(CSIdle)
+    , operation(COTNoOperation)
     , match(false)
     , currentFileLeft("")
     , currentFileRight("")
@@ -69,6 +70,34 @@ void Compositor::initWorker()
 }
 
 //==============================================================================
+// Set Status
+//==============================================================================
+void Compositor::setStatus(const int& aStatus)
+{
+    // Check Status
+    if (status != aStatus) {
+        // Set Status
+        status = aStatus;
+        // Emit Status Changed Signal
+        emit statusChanged(status);
+    }
+}
+
+//==============================================================================
+// Set Operation
+//==============================================================================
+void Compositor::setOperation(const int& aOperation)
+{
+    // Check Operation
+    if (operation != aOperation) {
+        // Set Operation
+        operation = aOperation;
+        // Emit Operation Changed Signal
+        emit operationChanged(operation);
+    }
+}
+
+//==============================================================================
 // Get Matching
 //==============================================================================
 bool Compositor::getMatch()
@@ -82,6 +111,14 @@ bool Compositor::getMatch()
 int Compositor::getStatus()
 {
     return status;
+}
+
+//==============================================================================
+// Get Oparation
+//==============================================================================
+int Compositor::getOperation()
+{
+    return operation;
 }
 
 //==============================================================================
@@ -131,7 +168,13 @@ void Compositor::setCurrentFileLeft(const QString& aCurrentFile)
 {
     // Check Current File
     if (currentFileLeft != aCurrentFile) {
+        // Set Status
+        setStatus(CSBusy);
+        // Set Operation
+        setOperation(COTScaleLeftImage);
+
         qDebug() << "Compositor::setCurrentFileLeft - aCurrentFile: " << aCurrentFile;
+
         // Set Current File
         currentFileLeft = aCurrentFile;
 
@@ -168,7 +211,13 @@ void Compositor::setCurrentFileRight(const QString& aCurrentFile)
 {
     // Check Current File
     if (currentFileRight != aCurrentFile) {
+        // Set Status
+        setStatus(CSBusy);
+        // Set Operation
+        setOperation(COTScaleRightImage);
+
         qDebug() << "Compositor::setCurrentFileRight - aCurrentFile: " << aCurrentFile;
+
         // Set Current File
         currentFileRight = aCurrentFile;
 
@@ -205,6 +254,11 @@ void Compositor::setZoomLevel(const qreal& aZoomLevel)
 {
     // Check Current Zoom LEvel
     if (zoomLevel != aZoomLevel && aZoomLevel > 0.0) {
+        // Set Status
+        setStatus(CSBusy);
+        // Set Operation
+        setOperation(COTScaleImages);
+
         qDebug() << "Compositor::setZoomLevel - aZoomLevel: " << aZoomLevel * 100 << "%";
 
         // Set Zoom Level
@@ -237,6 +291,11 @@ void Compositor::setPanPosX(const qreal& aPanPosX)
 {
     // Check Current Pan Pos X
     if (panPosX != aPanPosX) {
+        // Set Status
+        setStatus(CSBusy);
+        // Set Operation
+        setOperation(COTUpdateRects);
+
         //qDebug() << "Compositor::setPanPosX - aPanPosX: " << aPanPosX;
 
         // Set Current Pan Pos X
@@ -269,6 +328,11 @@ void Compositor::setPanPosY(const qreal& aPanPosY)
 {
     // Check Current Pan Pos X
     if (panPosY != aPanPosY) {
+        // Set Status
+        setStatus(CSBusy);
+        // Set Operation
+        setOperation(COTUpdateRects);
+
         //qDebug() << "Compositor::setPanPosY - aPanPosY: " << aPanPosY;
 
         // Set Current Pan Pos X
@@ -518,18 +582,30 @@ void Compositor::stopWorkerThread()
 void Compositor::workerResultReady(const int& aOperation, const int& aResult)
 {
     switch (aOperation) {
+        case COTNoOperation:
+            // NOOP
+        break;
+
         case COTScaleImages:
         case COTScaleLeftImage:
         case COTScaleRightImage:
             // Update
             update();
-
             // Notify Composite Sizes Changed
             notifyCompositeSizesChanged();
+            // Set Status
+            setStatus(CSIdle);
+
+            // ...
+
+            // Set Operation
+            setOperation(COTCompareImages);
+            // Set Status
+            setStatus(CSBusy);
 
             // Emit Signal to Start Operation
             emit operateWorker(COTCompareImages);
-        break;
+        return;
 
         case COTCompareImages:
             // Update
@@ -545,6 +621,9 @@ void Compositor::workerResultReady(const int& aOperation, const int& aResult)
             qDebug() << "Compositor::workerResultReady - aOperation: " << aOperation << " - aResult: " << aResult;
         break;
     }
+
+    // Set Status
+    setStatus(CSIdle);
 }
 
 //==============================================================================
