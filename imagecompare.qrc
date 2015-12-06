@@ -15,5 +15,6 @@
         <file>resources/images/icons/main_icon.png</file>
         <file>qml/Viewer.qml</file>
         <file>resources/images/icons/compare-orange-128.png</file>
+        <file>qml/OpacitySlider.qml</file>
     </qresource>
 </RCC>

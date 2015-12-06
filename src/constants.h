@@ -113,5 +113,8 @@ enum RotationDirectionType
 
 #define DEFAULT_MOUSE_WHEEL_PAN_STEP                    10
 
+#define DEFAULT_SIDE_VIEW_IMAGE_OPACITY                 0.5
+
+
 #endif // CONSTANTS_H
 

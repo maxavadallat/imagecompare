@@ -44,8 +44,7 @@ var defaultProgressIndicatorHeight      = 40;
 
 var defaultProgressBarHeight            = 16;
 
+var defaultOpacitySliderWidth           = 48;
+var defaultOpacitySliderHeight          = 280;
 
-var duplicateFileListItemHeight         = 16;
-var duplicateListImageWidth             = 96;
-var duplicateListImageHeight            = duplicateListImageWidth;
 

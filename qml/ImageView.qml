@@ -7,6 +7,21 @@ Item {
     width: 400
     height: 600
 
+    Connections {
+        target: sideViewController
+
+        onOpacityChanged: {
+            // Check Side
+            if (sideViewController.side === "left") {
+                // Set Left Opacity
+                mainViewController.opacityLeft = sideViewController.opacity;
+            } else {
+                // Set Right Opacity
+                mainViewController.opacityRight = sideViewController.opacity;
+            }
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
         color: "gray"
@@ -31,7 +46,7 @@ Item {
         smooth: false
 
         source: {
-            var fileName = side === "left" ? mainViewController.currentFileLeft : mainViewController.currentFileRight;
+            var fileName = sideViewController.side === "left" ? mainViewController.currentFileLeft : mainViewController.currentFileRight;
 
             if (fileName.length > 0) {
                 return "file://" + fileName;
@@ -49,7 +64,7 @@ Item {
         text: "No Image"
 
         opacity: {
-            var fileName = side === "left" ? mainViewController.currentFileLeft : mainViewController.currentFileRight;
+            var fileName = sideViewController.side === "left" ? mainViewController.currentFileLeft : mainViewController.currentFileRight;
             if (fileName === "") {
                 return 1.0;
             }
@@ -60,6 +75,16 @@ Item {
         Behavior on opacity { NumberAnimation { duration: 200 } }
         visible: opacity > 0.0
         color: "#77FFFFFF"
+    }
+
+    OpacitySlider {
+        id: opacitySlider
+        anchors.left: sideViewController.side === "left" ? parent.left : undefined
+        anchors.leftMargin: 32
+        anchors.right: sideViewController.side === "right" ? parent.right : undefined
+        anchors.rightMargin: 32
+        anchors.verticalCenter: parent.verticalCenter
+        opacity: sideViewController.rightPressed ? 1.0 : 0.0
     }
 
     Rectangle {

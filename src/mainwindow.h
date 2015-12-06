@@ -137,20 +137,9 @@ public slots:
     void flipHorizontally();
     // Flip Current/Selected Image(s) Vertically
     void flipVertically();
-    // Delete Current/Selected File(s)
-    void deleteFile();
-    // Rename Current/Selected File
-    void renameFile();
-    // Copy Current/Selected File(s)
-    void copyToDirectory();
-    // Move Current/Selected File(s)
-    void moveToDirectory();
 
     // Stop Worker
     void stopWorkerThread();
-
-    // Compare Images
-    void compareImages();
 
     // Zoom In
     void zoomIn();
@@ -229,9 +218,6 @@ private slots:
     // Set Zoom Level
     void setZoomLevel(const qreal& aZoomLevel);
 
-    // Refresh View
-    void refreshView(const int& aIndex);
-
     // Open Left File Button Clicked Slot
     void on_openLeftButton_clicked();
     // Open Right File Button Clicked Slot
@@ -250,10 +236,6 @@ private slots:
     void on_actionFlip_Horizontally_triggered();
     // Action Flip Vertically Triggered Slot
     void on_actionFlip_Vertically_triggered();
-    // Action Delete Triggered Slot
-    void on_actionDelete_triggered();
-    // Action Rename Triggered Slot
-    void on_actionRename_triggered();
     // Action Quit Triggered Slot
     void on_actionQuit_triggered();
     // Reset Zoom & Panning Pos Button Clicked Slot
@@ -297,33 +279,6 @@ private:
     void doFlipHorizontally();
     // Flip Current/Selected Image(s) Vertically
     void doFlipVertically();
-    // Delete Current/Selected File(s)
-    void doDeleteFile();
-    // Rename Current/Selected File(s)
-    void doRenameFile();
-    // Copy Current/Selected File(s)
-    void doCopyToDirectory();
-    // Move Current/Selected File(s)
-    void doMoveToDirectory();
-
-    // Delete File By Index
-    void deleteFileByIndex(const int& aIndex, const bool& aDeleteItem = true, const bool& aNotify = true);
-
-    // Rotate File By Index
-    void rotateFileByIndex(const int& aIndex, int aDirection, const bool& aNotify = true);
-    // Flip File By Index
-    void flipFileByIndex(const int& aIndex, int aDirection = FDTHorizontal, const bool& aNotify = true);
-
-    // Copy File By Index
-    bool copyFileByIndex(const int& aIndex, const QString& aTargetDir, const bool& aNotify = true);
-    // Move File By Index
-    void moveFileByIndex(const int& aIndex, const QString& aTargetDir, const bool& aDeleteItem = true, const bool& aNotify = true);
-
-    // Rename File By Index
-    void renameFileByIndex(const int& aIndex, const QString& aFileName, const bool& aNotify = true);
-
-    // Evaluate File Rename Pattern
-    bool evaluateFileRenamePattern();
 
 protected:
 

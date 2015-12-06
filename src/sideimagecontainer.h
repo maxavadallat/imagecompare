@@ -13,6 +13,10 @@ class SideImageContainer : public QQuickWidget
 
     Q_PROPERTY(QString side READ getSide WRITE setSide NOTIFY sideChanged)
 
+    Q_PROPERTY(qreal opacity READ getOpacity WRITE setOpacity NOTIFY opacityChanged)
+
+    Q_PROPERTY(bool rightPressed READ getRightPressed WRITE setRightPressed NOTIFY rightPressedChanged)
+
 public:
 
     // Constructor
@@ -23,6 +27,14 @@ public:
     // Set Side
     void setSide(const QString& aSide);
 
+    // Get Opacity
+    qreal getOpacity();
+    // Set Opacity
+    void setOpacity(const qreal& aOpacity);
+
+    // Get Right Pressed
+    bool getRightPressed();
+
     // Destructor
     ~SideImageContainer();
 
@@ -30,6 +42,12 @@ signals:
 
     // Side Changed Signal
     void sideChanged(const QString& aSide);
+
+    // Opacity Changed Signal
+    void opacityChanged(const qreal& aOpacity);
+
+    // Right Pressed Changed Signal
+    void rightPressedChanged(const bool& aPressed);
 
     // Mouse Pressed Signal
     void mousePressed(const QPoint& aPos);
@@ -40,6 +58,11 @@ signals:
 
     // Double Clicked Signal
     void doubleClicked(const QString& aSide);
+
+protected:
+
+    // Set Right Pressed
+    void setRightPressed(const bool& aPressed);
 
 protected:
 
@@ -57,8 +80,19 @@ private:
     // Side
     QString         side;
 
+    // Opacity
+    qreal           opacity;
+
     // Pressed
-    bool            pressed;
+    bool            leftPressed;
+
+    // Right Pressed
+    bool            rightPressed;
+
+    // Original Pos for Opacity
+    qreal           originalPosY;
+    // Original Opacity
+    qreal           originalOpacity;
 };
 
 

@@ -385,7 +385,7 @@ void Compositor::paint(QPainter* aPainter)
 
         // Save Painter
         aPainter->save();
-
+/*
         // Set Opacity
         aPainter->setOpacity(1.0);
 
@@ -401,7 +401,7 @@ void Compositor::paint(QPainter* aPainter)
         if (imageScaledRight.width() > 0 && imageScaledRight.height() > 0) {
             aPainter->drawImage(targetRectRight, imageScaledRight, sourceRectRight);
         }
-
+*/
         // Set Pen
         aPainter->setPen(Qt::NoPen);
         // Set Brush
@@ -554,14 +554,14 @@ void Compositor::compareImages()
         for (int y = sourceRectRight.y(); y < sourceRectRight.y() + lHeight && y < imageScaledLeft.height(); ++y) {
             for (int x = sourceRectRight.x(); x < sourceRectRight.x() + lWidth && x < imageScaledLeft.width(); ++x) {
 
-                if (x & 0x2) {
-                    fprintf(stderr, ".");
-                }
+//                if (x & 0x2) {
+//                    fprintf(stderr, ".");
+//                }
 
                 if (imageScaledLeft.pixel(x, y) != imageScaledRight.pixel(x, y)) {
                     qDebug() << "Compositor::compareImages - no match";
 
-                    fprintf(stderr, "\n");
+//                    fprintf(stderr, "\n");
 
                     // Set Match
                     setMatch(false);
@@ -569,7 +569,7 @@ void Compositor::compareImages()
                 }
             }
 
-            fprintf(stderr, "\n");
+//            fprintf(stderr, "\n");
         }
 
         // Set Match

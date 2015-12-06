@@ -64,10 +64,6 @@ private slots:
     void on_actionAbout_triggered();
     // On Action Preferences Triggered
     void on_actionPreferences_triggered();
-    // On Action Rename Triggered
-    void on_actionRename_triggered();
-    // On Action Delete Triggered
-    void on_actionDelete_triggered();
     // On Action Rotate Left Triggered
     void on_actionRotate_Left_triggered();
     // On Action Rotate Rigth Triggered

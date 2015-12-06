@@ -233,24 +233,6 @@ void ViewerWindow::on_actionPreferences_triggered()
 }
 
 //==============================================================================
-// On Action Rename Triggered
-//==============================================================================
-void ViewerWindow::on_actionRename_triggered()
-{
-    // Rename Current File
-    mainWindow->renameFile();
-}
-
-//==============================================================================
-// On Action Delete Triggered
-//==============================================================================
-void ViewerWindow::on_actionDelete_triggered()
-{
-    // Delete Current File
-    mainWindow->deleteFile();
-}
-
-//==============================================================================
 // On Action Rotate Left Triggered
 //==============================================================================
 void ViewerWindow::on_actionRotate_Left_triggered()

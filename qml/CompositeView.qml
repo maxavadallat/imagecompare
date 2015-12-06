@@ -8,40 +8,11 @@ Item {
     width: 400
     height: 600
 
-    Connections {
-        target: mainViewController
-
-//        // Current Left File Changed
-//        onCurrentFileLeftChanged: {
-
-//        }
-
-//        // Current Right File Changed
-//        onCurrentFileRightChanged: {
-
-//        }
-
-//        // Zoom Level Changed
-//        onZoomLevelChanged: {
-
-//        }
-
-//        // Pan Pos X Changed Signal
-//        onPanPosXChanged: {
-
-//        }
-
-//        // Pan Pos Y Changed Signal
-//        onPanPosYChanged: {
-
-//        }
-    }
-
     Rectangle {
         anchors.fill: parent
         color: "gray"
     }
-/*
+
     Image {
         id: leftImage
         anchors.centerIn: parent
@@ -57,9 +28,7 @@ Item {
         horizontalAlignment: Image.AlignHCenter
         verticalAlignment: Image.AlignVCenter
         fillMode: Image.Stretch
-
         smooth: false
-
         opacity: mainViewController.opacityLeft
         Behavior on opacity { NumberAnimation { duration: Const.defaultAnimDuration } }
         visible: opacity > 0.0
@@ -90,11 +59,8 @@ Item {
         horizontalAlignment: Image.AlignHCenter
         verticalAlignment: Image.AlignVCenter
         fillMode: Image.Stretch
-
         smooth: false
-
-        //opacity: mainViewController.opacityRight
-        opacity: 0.5
+        opacity: mainViewController.opacityRight
         Behavior on opacity { NumberAnimation { duration: Const.defaultAnimDuration } }
         visible: opacity > 0.0
 
@@ -108,7 +74,7 @@ Item {
             return "";
         }
     }
-*/
+
     Compositor {
         id: compositor
 

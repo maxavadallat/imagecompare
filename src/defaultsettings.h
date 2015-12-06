@@ -8,9 +8,9 @@
 #define DEFAULT_MAIN_WINDOW_HEIGHT                          600             // height
 
 // Default Left Image Opacity in Compositor
-#define DEFAULT_IMAGE_OPACITY_LEFT                          1.0
+#define DEFAULT_IMAGE_OPACITY_LEFT                          0.5
 // Default Right Image Opacity in Compositor
-#define DEFAULT_IMAGE_OPACITY_RIGHT                         1.0
+#define DEFAULT_IMAGE_OPACITY_RIGHT                         0.5
 
 
 #endif // DEFAULTSETTINGS

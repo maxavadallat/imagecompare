@@ -101,6 +101,8 @@ void MainWindow::init()
     leftContext->setContextProperty(MAIN_VIEW_CONTROLLER, this);
     // Set Side
     ui->leftView->setSide(CONTEXT_PROPERTY_SIDE_VALUE_LEFT);
+    // Set Opacity
+    ui->leftView->setOpacity(opacityLeft);
     // Set Source
     ui->leftView->setSource(QUrl(QML_SOURCE_SIDE_VIEW));
 
@@ -137,6 +139,8 @@ void MainWindow::init()
     rightContext->setContextProperty(MAIN_VIEW_CONTROLLER, this);
     // Set Side
     ui->rightView->setSide(CONTEXT_PROPERTY_SIDE_VALUE_RIGHT);
+    // Set Opacity
+    ui->rightView->setOpacity(opacityRight);
     // Set Source
     ui->rightView->setSource(QUrl(QML_SOURCE_SIDE_VIEW));
 
@@ -283,6 +287,9 @@ void MainWindow::setCurrentFileLeft(const QString& aCurrentFile)
         emit currentFileLeftChanged(currentFileLeft);
 
         // ...
+
+        // Update Menu
+        updateMenu();
     }
 }
 
@@ -309,6 +316,9 @@ void MainWindow::setCurrentFileRight(const QString& aCurrentFile)
         emit currentFileRightChanged(currentFileRight);
 
         // ...
+
+        // Update Menu
+        updateMenu();
     }
 }
 
@@ -387,16 +397,6 @@ void MainWindow::setZoomLevel(const qreal& aZoomLevel)
 
         // ...
     }
-}
-
-//==============================================================================
-// Refresh View
-//==============================================================================
-void MainWindow::refreshView(const int& aIndex)
-{
-    qDebug() << "MainWindow::refreshView";
-
-    // ...
 }
 
 //==============================================================================
@@ -524,8 +524,6 @@ void MainWindow::initWorker()
         // Connect Signals
         connect(worker, SIGNAL(resultReady(int,int)), this, SLOT(workerResultReady(int,int)), Qt::QueuedConnection);
         connect(this, SIGNAL(operateWorker(int)), worker, SLOT(doWork(int)));
-        connect(worker, SIGNAL(fileRenamed(QString)), this, SLOT(fileRenamed(QString)));
-        connect(worker, SIGNAL(refreshView()), this, SLOT(refreshView()));
 
         // ...
 
@@ -555,11 +553,9 @@ void MainWindow::saveSettings()
     settings.setValue(SETTINGS_KEY_LAST_FILE_RIGHT, currentFileRight);
 
     // Save Main Splitter State
-    //settings.setValue(SETTINGS_KEY_MAIN_SPLITTER, ui->mainSplitter->saveState());
+    settings.setValue(SETTINGS_KEY_MAIN_SPLITTER, ui->mainSplitter->saveState());
 
-    // Save Left Splitter
-    //settings.setValue(SETTINGS_KEY_LEFT_SPLITTER, ui->leftPaneSplitter->saveState());
-
+    // Save Last Open Path
     settings.setValue(SETTINGS_KEY_LAST_DIR, lastOpenPath);
 
     // Get Maximized State
@@ -625,141 +621,6 @@ void MainWindow::flipVertically()
 
     // Emit Operate Worker Signal
     emit operateWorker(OTFlipFilesVertically);
-}
-
-//==============================================================================
-// Delete Current/Selected File(s)
-//==============================================================================
-void MainWindow::deleteFile()
-{
-    qDebug() << "MainWindow::deleteFile";
-
-    // Init Worker
-    initWorker();
-
-    // Emit Operate Worker Signal
-    emit operateWorker(OTDeleteFiles);
-}
-
-//==============================================================================
-// Delete Current/Selected File
-//==============================================================================
-void MainWindow::renameFile()
-{
-    qDebug() << "MainWindow::renameFile";
-
-    // Init Generic Dialog
-    QDialog* dialog = NULL;
-
-//    // Check If Model Has Selection
-//    if (hasSelection()) {
-
-//        // Check Rename Series Dialog
-//        if (!renameSeriesDialog) {
-//            // Create Rename Series Dialog
-//            renameSeriesDialog = new RenameSeriesDialog;
-//        }
-
-//        // Set Dialog
-//        dialog = renameSeriesDialog;
-
-//    } else {
-
-//        // Check REname File Dialog
-//        if (!renameFileDialog) {
-//            // Create Rename File Dialog
-//            renameFileDialog = new RenameFileDialog;
-//        }
-
-//        // Init index
-//        int index = popupIndex >= 0 ? popupIndex : currentIndex ;
-//        // Set File Name
-//        QString fileName = static_cast<BrowserDataObject*>(browserDataModel[index])->fileName;
-//        // Set File Name
-//        renameFileDialog->setFileName(fileName);
-
-//        // Set Dialog
-//        dialog = renameFileDialog;
-//    }
-
-//    // Check Dialog
-//    if (dialog && dialog->exec()) {
-
-//        // Evaluate File Rename Pattern if Has Selection
-//        if (hasSelection() && !evaluateFileRenamePattern()) {
-//            return;
-//        }
-
-//        // Do Rename File
-//        //doRenameFile();
-
-//        // Init Worker
-//        initWorker();
-
-//        // Emit Operate Worker Signal
-//        emit operateWorker(OTRenameFiles);
-//    }
-}
-
-//==============================================================================
-// Copy To Current/Selected File(s)
-//==============================================================================
-void MainWindow::copyToDirectory()
-{
-    qDebug() << "MainWindow::copyToDirectory";
-
-    // Check Dir Selector
-    if (!dirSelector) {
-        // Create Dir Selector
-        dirSelector = new DirSelectorDialog();
-    }
-
-    // Check Dir Selector
-    if (dirSelector) {
-        // Set Title
-        dirSelector->setWindowTitle(QString("Copy To Directory..."));
-
-        // Exec Dir Selector Dialog
-        if (dirSelector->exec()) {
-            // Init Worker
-            initWorker();
-
-            // Emit Operate Worker Signal
-            emit operateWorker(OTCopyToFiles);
-        }
-    }
-}
-
-//==============================================================================
-// Move To Current/Selected File(s)
-//==============================================================================
-void MainWindow::moveToDirectory()
-{
-    qDebug() << "MainWindow::moveToDirectory";
-
-    // Check Dir Selector
-    if (!dirSelector) {
-        // Create Dir Selector
-        dirSelector = new DirSelectorDialog();
-    }
-
-    // Check Dir Selector
-    if (dirSelector) {
-        // Set Title
-        dirSelector->setWindowTitle(QString("Move To Directory..."));
-
-        // Exec Dir Selector Dialog
-        if (dirSelector->exec()) {
-            // Do Move To Directory
-            //doMoveToDirectory();
-
-            // Init Worker
-            initWorker();
-
-            // Emit Operate Worker Signal
-            emit operateWorker(OTMoveToFiles);
-        }
-    }
 }
 
 //==============================================================================
@@ -860,291 +721,6 @@ void MainWindow::doFlipVertically()
 
 //    // Flip By Index
 //    flipFileByIndex(index, FDTVertical);
-}
-
-//==============================================================================
-// Delete Current/Selected File(s)
-//==============================================================================
-void MainWindow::doDeleteFile()
-{
-//    // Init index
-//    int index = currentIndex ;
-
-//    // Check Popup Index
-//    if (popupIndex != -1) {
-//        qDebug() << "MainWindow::doDeleteFile - popupIndex: " << popupIndex;
-
-//        // Set Index
-//        index = popupIndex;
-//        // Reset Popup Index
-//        popupIndex = -1;
-
-//    } else {
-//        qDebug() << "MainWindow::doDeleteFile - currentIndex: " << currentIndex;
-//    }
-
-//    // Delete File By Index
-//    deleteFileByIndex(index);
-}
-
-//==============================================================================
-// Rename Current/Selected File
-//==============================================================================
-void MainWindow::doRenameFile()
-{
-//    // Init index
-//    int index = currentIndex ;
-
-//    // Check Popup Index
-//    if (popupIndex != -1) {
-//        qDebug() << "MainWindow::doRenameFile - popupIndex: " << popupIndex;
-
-//        // Set Index
-//        index = popupIndex;
-//        // Reset Popup Index
-//        popupIndex = -1;
-
-//    } else {
-//        qDebug() << "MainWindow::doRenameFile - currentIndex: " << currentIndex;
-//    }
-
-//    // Rename File By Index
-//    renameFileByIndex(index, renameFileDialog->getFileName());
-}
-
-//==============================================================================
-// Copy Current/Selected File(s)
-//==============================================================================
-void MainWindow::doCopyToDirectory()
-{
-//    // Check Dir Selector & Selected Dir
-//    if (dirSelector && dirSelector->getSelectedDir() != currentDir) {
-//        qDebug() << "MainWindow::doCopyToDirectory - selectedDir: " << dirSelector->getSelectedDir();
-
-//        // Reset Transfer Options
-//        transferOptions = 0;
-
-//        // Check If Browser Grid Has Selections
-//        if (hasSelection()) {
-//            // Get Browser Data Model Count
-//            int bdmCount = browserDataModel.count();
-//            // Get Selected Item Count
-//            int selectedCount = numberOfSelected();
-//            // Init Selected Index
-//            int selectedIndex = 0;
-
-//            // Got Thru Model
-//            for (int i=0; i<bdmCount; i++) {
-//                // Get Item
-//                BrowserDataObject* item = static_cast<BrowserDataObject*>(browserDataModel[i]);
-//                // Check If Selected
-//                if (item->fileSelected) {
-//                    // Reset File Selected
-//                    //item->fileSelected = false;
-//                    // Copy By Index
-//                    copyFileByIndex(i, dirSelector->getSelectedDir());
-//                    // Inc Selected Index
-//                    selectedIndex++;
-//                    // Emit Progress Changed Signal
-//                    emit progressChanged(selectedCount, selectedIndex);
-//                }
-//            }
-
-//        } else {
-//            // Init index
-//            int index = currentIndex ;
-
-//            // Check Popup Index
-//            if (popupIndex != -1) {
-//                qDebug() << "MainWindow::doCopyToDirectory - popupIndex: " << popupIndex;
-
-//                // Set Index
-//                index = popupIndex;
-//                // Reset Popup Index
-//                popupIndex = -1;
-
-//            } else {
-//                qDebug() << "MainWindow::doCopyToDirectory - currentIndex: " << currentIndex;
-//            }
-
-//            // Copy To By Index
-//            copyFileByIndex(index, dirSelector->getSelectedDir());
-
-//        }
-//    } else {
-//        qDebug() << "MainWindow::doCopyToDirectory - Target Dir is the same as current...";
-//    }
-}
-
-//==============================================================================
-// Move Current/Selected File(s)
-//==============================================================================
-void MainWindow::doMoveToDirectory()
-{
-//    // Check Dir Selector & Selected Dir
-//    if (dirSelector && dirSelector->getSelectedDir() != currentDir) {
-//        qDebug() << "MainWindow::doMoveToDirectory - selectedDir: " << dirSelector->getSelectedDir();
-
-//        // Reset Transfer Options
-//        transferOptions = 0;
-
-//        // Check If Browser Grid Has Selections
-//        if (hasSelection()) {
-
-//            // Get Browser Data Model Count
-//            int bdmCount = browserDataModel.count();
-//            // Get Selected Item Count
-//            int selectedCount = numberOfSelected();
-//            // Init Selected Index
-//            int selectedIndex = 0;
-//            // Init Last Index
-//            int lastIndex = -1;
-
-//            // Got Thru Model
-//            for (int i=bdmCount-1; i>=0; i--) {
-//                // Get Item
-//                BrowserDataObject* item = static_cast<BrowserDataObject*>(browserDataModel[i]);
-
-//                // Check If Selected
-//                if (item->fileSelected) {
-//                    // Set Last Index
-//                    lastIndex = i;
-//                    // Move By Index
-//                    moveFileByIndex(i, dirSelector->getSelectedDir(), false, false);
-//                    //moveFileByIndex(i, dirSelector->getSelectedDir());
-//                    // Inc Selected Index
-//                    selectedIndex++;
-//                    // Emit Progress Changed Signal
-//                    emit progressChanged(selectedCount, selectedIndex);
-//                }
-//            }
-
-//            // Check Worker
-//            if (worker) {
-//                // Emit Populat Browser Model
-//                emit worker->populateBrowserModel(lastIndex);
-//            } else {
-//                // Populate Browser Data Model
-//                populateBrowserModel(lastIndex);
-//            }
-///*
-//            // Check Last Index
-//            if (lastIndex != -1) {
-//                // Set Current Index
-//                setCurrentIndex(lastIndex);
-//            }
-//*/
-//            // Get Deleted Items Count
-//            while (deletedItems.count() > 0) {
-//                // Get Last Item
-//                QObject* lastItem = deletedItems.takeLast();
-//                // Delete Last Item
-//                lastItem->deleteLater();
-//            }
-
-//        } else {
-//            // Init index
-//            int index = currentIndex ;
-
-//            // Check Popup Index
-//            if (popupIndex != -1) {
-//                qDebug() << "MainWindow::doMoveToDirectory - popupIndex: " << popupIndex;
-
-//                // Set Index
-//                index = popupIndex;
-//                // Reset Popup Index
-//                popupIndex = -1;
-
-//            } else {
-//                qDebug() << "MainWindow::doMoveToDirectory - currentIndex: " << currentIndex;
-//            }
-
-//            // Move By Index
-//            moveFileByIndex(index, dirSelector->getSelectedDir());
-
-//        }
-//    } else {
-//        qDebug() << "MainWindow::doMoveToDirectory - Target Dir is the same as current...";
-//    }
-}
-
-//==============================================================================
-// Compare Images
-//==============================================================================
-void MainWindow::compareImages()
-{
-//    qDebug() << "MainWindow::compareImages";
-
-//    // Check Comapre Images Dialog
-//    if (!compareDialog) {
-//        // Create Dialog
-//        compareDialog = new CompareDialog();
-//    }
-
-//    // Init Left Image
-//    QString leftImage = QString("");
-//    // Init Right Image
-//    QString rightImage = QString("");
-//    // Init Title Left
-//    QString titleLeft = QString("");
-//    // Init title Right
-//    QString titleRight = QString("");
-//    // Init Item
-//    BrowserDataObject* item = NULL;
-
-//    // Check If Has Selection
-//    if (hasSelection()) {
-//        // Get Browser Data Model Count
-//        int bdmCount = browserDataModel.count();
-
-//        // Go Thru Items
-//        for (int i=0; i<bdmCount; i++) {
-//            // Get Item
-//            item = static_cast<BrowserDataObject*>(browserDataModel[i]);
-
-//            // Check If Item Selected
-//            if (item->fileSelected) {
-//                // Check Left Image
-//                if (leftImage.isEmpty()) {
-//                    // Set Left Image
-//                    leftImage = currentDir + QString("/") + item->fileName;
-//                    // Set Left Title
-//                    titleLeft = item->fileName;
-//                } else {
-//                    // Check Right Image
-//                    if (rightImage.isEmpty()) {
-//                        // Set Right Image
-//                        rightImage = currentDir + QString("/") + item->fileName;
-//                        // Set Right Title
-//                        titleRight = item->fileName;
-//                    } else {
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//    } else {
-//        // Get Item
-//        item = static_cast<BrowserDataObject*>(browserDataModel[currentIndex]);
-//        // Get Current File Name
-//        leftImage = currentDir + QString("/") + item->fileName;
-//        // Set Left Title
-//        titleLeft = item->fileName;
-//        // Check Popup Index
-//        if (popupIndex != -1) {
-//            // Get Item
-//            item = static_cast<BrowserDataObject*>(browserDataModel[popupIndex]);
-//            // Set Right Title
-//            titleRight = item->fileName;
-//            // Set Right Image
-//            rightImage = currentDir + QString("/") + item->fileName;
-//            // Reset Popup Index
-//            popupIndex = -1;
-//        }
-//    }
-
-
-    // ...
 }
 
 //==============================================================================
@@ -1328,472 +904,20 @@ void MainWindow::reset()
 
     // Update Menu
     updateMenu();
-}
 
-//==============================================================================
-// Delete File By Index
-//==============================================================================
-void MainWindow::deleteFileByIndex(const int& aIndex, const bool& aDeleteItem, const bool& aNotify)
-{
-//    // Get Model Count
-//    int bdmCount = browserDataModel.count();
+    // Reset Opacities
+    setOpacityLeft(DEFAULT_IMAGE_OPACITY_LEFT);
+    setOpacityRight(DEFAULT_IMAGE_OPACITY_RIGHT);
 
-//    // Check Index
-//    if (aIndex >=0 && aIndex < bdmCount) {
-//        // Init File Name
-//        QString fileName = currentDir + QString("/") + static_cast<BrowserDataObject*>(browserDataModel[aIndex])->fileName;
+    // Init Sizes
+    QList<int> sizes;
 
-//        // Init File Info
-//        QFileInfo fileInfo(fileName);
+    sizes << width();
+    sizes << width();
+    sizes << width();
 
-//        // Check File Info - Check Settings
-//        if (fileInfo.exists()) {
-
-//            qDebug() << "MainWindow::deleteFileByIndex - aIndex: " << aIndex;
-
-//            // Init Dir
-//            QDir dir(fileInfo.canonicalPath());
-
-//            // Delete File
-//            if (!dir.remove(fileName)) {
-//                qDebug() << "MainWindow::deleteFileByIndex - aIndex: " << fileName << " - ERROR!";
-//            }
-
-//            // Get Item
-//            BrowserDataObject* item = static_cast<BrowserDataObject*>(browserDataModel.takeAt(aIndex));
-
-//            // Check Notify
-//            if (aNotify) {
-//                // Emit Deleting Index Signal
-//                emit deletingIndex(aIndex);
-
-//                // Check Worker
-//                if (worker) {
-//                    // Emit Populate Browser Data Model
-//                    emit worker->populateBrowserModel(aIndex);
-//                } else {
-//                    // Populate Browser Data Model
-//                    populateBrowserModel(aIndex);
-//                }
-
-//                // Emit Index Removed Signal
-//                emit indexDeleted(aIndex);
-
-//                // Set Current Index
-//                //setCurrentIndex(aIndex);
-//            }
-
-//            // Check Delete Item
-//            if (aDeleteItem) {
-//                // Delte Item - Have to do it last
-//                //delete item;
-//                item->deleteLater();
-//            } else {
-//                // Append To Deleted Item List
-//                deletedItems << item;
-//            }
-//        }
-//    }
-}
-
-//==============================================================================
-// Rotate File By Index
-//==============================================================================
-void MainWindow::rotateFileByIndex(const int& aIndex, int aDirection, const bool& aNotify)
-{
-//    // Get Model Count
-//    int bdmCount = browserDataModel.count();
-
-//    // Check Index
-//    if (aIndex >=0 && aIndex < bdmCount) {
-//        // Init File Name
-//        QString fileName = currentDir + QString("/") + static_cast<BrowserDataObject*>(browserDataModel[aIndex])->fileName;
-
-//        // Init Image
-//        QImage image(fileName);
-
-//        // Init Transform
-//        QTransform transform;
-//        // Set Rotation
-//        transform.rotate(aDirection == RDTLeft ? TRANSFORM_ROTATE_LEFT : TRANSFORM_ROTATE_RIGHT);
-
-//        // Get Transformed Image
-//        image = image.transformed(transform);
-
-//        // Save Image
-//        image.save(fileName);
-
-//        // For Refresh
-
-//        // Check Notify
-//        if (aNotify) {
-//            // Emit File Updated Signal
-//            emit fileUpdated(aIndex);
-//        }
-//    }
-}
-
-//==============================================================================
-// Flip File By Index
-//==============================================================================
-void MainWindow::flipFileByIndex(const int& aIndex, int aDirection, const bool& aNotify)
-{
-//    // Get Model Count
-//    int bdmCount = browserDataModel.count();
-
-//    // Check Index
-//    if (aIndex >=0 && aIndex < bdmCount) {
-//        // Init File Name
-//        QString fileName = currentDir + QString("/") + static_cast<BrowserDataObject*>(browserDataModel[aIndex])->fileName;
-
-//        // Init Image
-//        QImage image(fileName);
-//        // Get Mirrored Image
-//        image = image.mirrored(aDirection == FDTHorizontal, aDirection == FDTVertical);
-
-//        // Save Image
-//        image.save(fileName);
-
-//        // For Refresh
-
-//        // Check Notify
-//        if (aNotify) {
-//            // Emit File Updated Signal
-//            emit fileUpdated(aIndex);
-//        }
-//    }
-}
-
-//==============================================================================
-// Copy File By Index
-//==============================================================================
-bool MainWindow::copyFileByIndex(const int& aIndex, const QString& aTargetDir, const bool& aNotify)
-{
-//    Q_UNUSED(aNotify);
-
-//    // Get Model Count
-//    int bdmCount = browserDataModel.count();
-
-//    // Check Index
-//    if (aIndex >=0 && aIndex < bdmCount) {
-//        // Init Source File Name
-//        QString sourceFileName = currentDir + QString("/") + static_cast<BrowserDataObject*>(browserDataModel[aIndex])->fileName;
-
-//        // Init Target File Name
-//        QString targetFileName(aTargetDir);
-//        // Add Separator
-//        targetFileName += "/";
-//        // Add Current File Name
-//        targetFileName += static_cast<BrowserDataObject*>(browserDataModel[aIndex])->fileName;
-
-//        // Init Current File
-//        QFile file(sourceFileName);
-//        // Init Target File
-//        QFile targetFile(targetFileName);
-
-//        // Check Target File - TODO: Check Settings
-
-//        // Check If Target File Exists
-//        if (targetFile.exists()) {
-//            //qDebug("MainWindow::copyFileByIndex - Overwriting...");
-
-//            // Check Transfer Options - No To All
-//            if (transferOptions & DEFAULT_TRANSFER_OPTIONS_NO_TO_ALL) {
-//                return false;
-//            }
-
-//            // Check Transfer Options - Yes To All
-//            if (!(transferOptions & DEFAULT_TRANSFER_OPTIONS_YES_TO_ALL)) {
-
-//                // Check Compare Dialog
-//                if (!compareDialog) {
-
-//                    // Create Compare Dialog
-//                    //compareDialog = new CompareDialog();
-
-//                    qWarning() << "MainWindow::copyFileByIndex - NO COMPARE DIALOG!!";
-
-//                    return false;
-//                }
-
-//                // Set Current Dir
-//                compareDialog->setCurrentDir(currentDir);
-
-//                // Set Left Image File
-//                compareDialog->setLeftImage(sourceFileName);
-//                // Set Right Image File
-//                compareDialog->setRightImage(targetFileName);
-
-//                // Set Window Title
-//                //compareDialog->setWindowTitle(QString("Compare Images: %1 <-> %2").arg(titleLeft).arg(titleRight));
-//                compareDialog->setWindowTitle(QString("Target File Exists: %1. Overwrite?").arg(targetFileName));
-
-//                // ...
-
-//                // Configure Buttons
-////                compareDialog->configureButtons(QDialogButtonBox::Yes | QDialogButtonBox::YesToAll | QDialogButtonBox::No | QDialogButtonBox::NoToAll | QDialogButtonBox::Abort);
-
-//                // Exec
-//                compareDialog->exec();
-
-//                // Check Action Index
-//                switch (compareDialog->actionIndex) {
-//                    case 1:
-//                        // Yes To All
-
-//                        // Set Transfer Options
-//                        transferOptions |= DEFAULT_TRANSFER_OPTIONS_YES_TO_ALL;
-
-//                    case 0:
-//                        // Yes
-
-//                    break;
-
-//                    case 3:
-//                        // No To All
-
-//                        // Set Transfer Options
-//                        transferOptions |= DEFAULT_TRANSFER_OPTIONS_NO_TO_ALL;
-
-//                    case 2:
-//                    default:
-
-//                        // No
-//                        return false;
-//                    break;
-//                }
-//            }
-
-//            // Delete Target File
-//            if (!targetFile.remove()) {
-//                qDebug("MainWindow::copyFileByIndex - ERROR CLEARING TARGET FILE!");
-
-//                return false;
-//            }
-//        }
-
-//        // Copy File(s)
-//        if (!file.copy(targetFileName)) {
-//            qDebug("MainWindow::copyFileByIndex - ERROR COPY FILE!");
-
-//            return false;
-//        }
-
-//        return true;
-//    }
-
-    return false;
-}
-
-//==============================================================================
-// Move File By Index
-//==============================================================================
-void MainWindow::moveFileByIndex(const int& aIndex, const QString& aTargetDir, const bool& aDeleteItem, const bool& aNotify)
-{
-//    Q_UNUSED(aNotify);
-
-//    // Copy File by Index
-//    if (copyFileByIndex(aIndex, aTargetDir, aNotify)) {
-//        // Init File Name
-//        QString sourceFileName = currentDir + QString("/") + static_cast<BrowserDataObject*>(browserDataModel[aIndex])->fileName;
-//        // Init Source File
-//        QFile sourceFile(sourceFileName);
-//        // Remove
-//        if (!sourceFile.remove()) {
-//            qDebug("MainWindow::moveFileByIndex - ERROR REMOVING SOURCE FILE!");
-
-//            return;
-//        }
-//    } else {
-//        //qDebug("MainWindow::moveFileByIndex - ERROR COPY SOURCE FILE!");
-
-//        return;
-//    }
-
-//    // Get Item
-//    BrowserDataObject* item = static_cast<BrowserDataObject*>(browserDataModel.takeAt(aIndex));
-
-//    // Check Notify
-//    if (aNotify) {
-//        // Emit Deleting Index Signal
-//        emit deletingIndex(aIndex);
-
-//        // Check Worker
-//        if (worker) {
-//            // Emit Populate Browser Data Model
-//            emit worker->populateBrowserModel(aIndex);
-//        } else {
-//            // Populate Browser Data Model
-//            populateBrowserModel(aIndex);
-//        }
-
-//        // Emit Index Removed Signal
-//        emit indexDeleted(aIndex);
-
-//        // Set Current Index
-//        //setCurrentIndex(aIndex);
-//    }
-
-//    if (aDeleteItem) {
-//        // Delte Item - Have to do it last
-//        //delete item;
-//        item->deleteLater();
-//    } else {
-//        // Append To Deleted Items
-//        deletedItems << item;
-
-//        qDebug() << "MainWindow::moveFileByIndex - added deleted item";
-//    }
-}
-
-//==============================================================================
-// Rename File By Index
-//==============================================================================
-void MainWindow::renameFileByIndex(const int& aIndex, const QString& aFileName, const bool& aNotify)
-{
-//    // Get Model Count
-//    int bdmCount = browserDataModel.count();
-
-//    // Check Index
-//    if (aIndex >=0 && aIndex < bdmCount) {
-//        // Get Item
-//        BrowserDataObject* item = static_cast<BrowserDataObject*>(browserDataModel[aIndex]);
-
-//        // Init Full File Name
-//        QString fileName = currentDir + QString("/") + item->fileName;
-
-//        // Init Target File Name
-//        QString targetFileName(currentDir);
-//        // Add Separator
-//        targetFileName += "/";
-//        // Add Target File Name
-//        targetFileName += aFileName;
-
-//        // Init Current File
-//        QFile file(fileName);
-//        // Init Target File
-//        QFile targetFile(targetFileName);
-
-//        // Check Target File - TODO: Check Settings
-//        if (targetFile.exists()) {
-//            qDebug("MainWindow::renameFileByIndex - Overwriting...");
-
-//            // Show Image Compare Dialog - Check Settings
-
-//            // Delete Target File
-//            if (!targetFile.remove()) {
-//                qDebug("MainWindow::renameFileByIndex - ERROR CLEARING TARGET FILE!");
-
-//                return;
-//            }
-//        }
-
-//        // Rename File
-//        if (file.rename(targetFileName)) {
-//            // Set Browser Data Model File Name
-//            item->setFileName(aFileName);
-
-//            // Check Index
-//            if (aIndex == currentIndex) {
-//                // Update Current File
-//                setCurrentFile(targetFileName);
-//            }
-
-//        } else {
-//            qDebug("MainWindow::renameFileByIndex - ERROR RENAME FILE!");
-//        }
-
-//        // Check Notify
-//        if (aNotify) {
-//            // Emit File Updated Signal
-//            emit fileUpdated(aIndex);
-
-//            // Check Worker
-//            if (worker) {
-//                // Emit File Renamed Signal
-//                emit worker->fileRenamed(aFileName);
-//            } else {
-//                // Call File Renamed Slot
-//                fileRenamed(aFileName);
-//            }
-//        }
-//    }
-}
-
-//==============================================================================
-// Evaluate File Rename Pattern
-//==============================================================================
-bool MainWindow::evaluateFileRenamePattern()
-{
-//    // Check REname Series Dialog
-//    if (!renameSeriesDialog) {
-//        return false;
-//    }
-
-//    // Get Pattern
-//    QString pattern = renameSeriesDialog->getPattern();
-
-//    // Check Pattern
-//    if (pattern.isEmpty()) {
-
-//        // Check Info Dialog
-//        if (!infoDialog) {
-//            // Create Info Dialog
-//            infoDialog = new InfoDialog;
-//        }
-
-//        // Show Invalid Pattern Dialog
-//        infoDialog->showDialogWithText(QString("Invalid File Name Pattern!"));
-
-//        return false;
-//    }
-
-//    // Get Index Of #
-//    int hashIndex = pattern.indexOf("#");
-
-//    // Check Hash Index
-//    if (hashIndex < 0) {
-//        // Check Info Dialog
-//        if (!infoDialog) {
-//            // Create Info Dialog
-//            infoDialog = new InfoDialog;
-//        }
-
-//        // Show Invalid Pattern Dialog
-//        infoDialog->showDialogWithText(QString("Invalid File Name Pattern!"));
-
-//        return false;
-//    }
-
-//    // Set Prev Hash Index
-//    int prevHashIndex = hashIndex;
-
-//    // Go Thru Pattern Checking Hash Indexes
-//    while (hashIndex >= 0) {
-//        // Get Next Hash Index
-//        hashIndex = pattern.indexOf("#", prevHashIndex + 1);
-
-//        // Check Hash Index
-//        if (hashIndex - prevHashIndex > 1) {
-//            // Check Info Dialog
-//            if (!infoDialog) {
-//                // Create Info Dialog
-//                infoDialog = new InfoDialog;
-//            }
-
-//            // Show Invalid Pattern Dialog
-//            infoDialog->showDialogWithText(QString("Invalid File Name Pattern!"));
-
-//            return false;
-//        }
-
-//        // Set Prev Hash Index
-//        prevHashIndex = hashIndex;
-//    }
-
-    // ...
-
-    return true;
+    // Reset Splitter
+    ui->mainSplitter->setSizes(sizes);
 }
 
 //==============================================================================
@@ -2050,79 +1174,7 @@ void MainWindow::fileRenamed(const QString& aFileName)
 
     // ...
 }
-/*
-//==============================================================================
-// Left Image Mouse Pressed Slot
-//==============================================================================
-void MainWindow::imageLeftMousePressed(const QPoint& aPos)
-{
 
-}
-
-//==============================================================================
-// Left Image Mouse Moved Slot
-//==============================================================================
-void MainWindow::imageLeftMouseMoved(const QPoint& aPos)
-{
-
-}
-
-//==============================================================================
-// Left Image Mouse Released Slot
-//==============================================================================
-void MainWindow::imageLeftMouseReleased(const QPoint& aPos)
-{
-
-}
-
-//==============================================================================
-// Compositor Mouse Pressed Slot
-//==============================================================================
-void MainWindow::compositorMousePressed(const QPoint& aPos)
-{
-
-}
-
-//==============================================================================
-// Compositor Mouse Moved Slot
-//==============================================================================
-void MainWindow::compositorMouseMoved(const QPoint& aPos)
-{
-
-}
-
-//==============================================================================
-// Compositor Mouse Released Slot
-//==============================================================================
-void MainWindow::compositorMouseReleased(const QPoint& aPos)
-{
-
-}
-
-//==============================================================================
-// Right Image Mouse Pressed Slot
-//==============================================================================
-void MainWindow::imageRightMousePressed(const QPoint& aPos)
-{
-
-}
-
-//==============================================================================
-// Right Image Mouse Moved Slot
-//==============================================================================
-void MainWindow::imageRightMouseMoved(const QPoint& aPos)
-{
-
-}
-
-//==============================================================================
-// Right Image Mouse Released Slot
-//==============================================================================
-void MainWindow::imageRightMouseReleased(const QPoint& aPos)
-{
-
-}
-*/
 //==============================================================================
 // Pan Start Slot
 //==============================================================================
@@ -2163,6 +1215,7 @@ void MainWindow::panMove(const QPoint& aPos)
 //==============================================================================
 void MainWindow::panFinished(const QPoint& aPos)
 {
+    Q_UNUSED(aPos);
     //qDebug() << "MainWindow::panFinished - aPos: " << aPos;
 
     // Reset Pan Press X
@@ -2275,24 +1328,6 @@ void MainWindow::on_actionFlip_Vertically_triggered()
 }
 
 //==============================================================================
-// Action Delete Triggered
-//==============================================================================
-void MainWindow::on_actionDelete_triggered()
-{
-    // Delete File
-    deleteFile();
-}
-
-//==============================================================================
-// Action Rename Triggered
-//==============================================================================
-void MainWindow::on_actionRename_triggered()
-{
-    // Rename Current/Selected File(s)
-    renameFile();
-}
-
-//==============================================================================
 // Reset Zoom & Panning Pos Button Clicked Slot
 //==============================================================================
 void MainWindow::on_resetButton_clicked()
@@ -2390,6 +1425,20 @@ void MainWindow::keyReleaseEvent(QKeyEvent* aEvent)
             case Qt::Key_F10:
                 // Exit AppLication
                 QApplication::exit();
+            break;
+
+            case Qt::Key_L:
+                if (aEvent->modifiers() & Qt::ShiftModifier && aEvent->modifiers() & Qt::AltModifier) {
+                    // Reset Left Image
+                    setCurrentFileLeft("");
+                }
+            break;
+
+            case Qt::Key_R:
+                if (aEvent->modifiers() & Qt::ShiftModifier && aEvent->modifiers() & Qt::AltModifier) {
+                    // Reset Right Image
+                    setCurrentFileRight("");
+                }
             break;
 
             default:
