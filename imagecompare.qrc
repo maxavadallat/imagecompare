@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/ImageView.qml</file>
+        <file>qml/CompositeView.qml</file>
+        <file>qml/js/constants.js</file>
+        <file>resources/images/icons/add-file-32.png</file>
+        <file>resources/images/icons/settings-32.png</file>
+        <file>resources/images/icons/zoom-in-32.png</file>
+        <file>resources/images/icons/zoom-out-32.png</file>
+        <file>resources/images/icons/square-dashed-rounded-32.png</file>
+        <file>resources/images/icons/exit-32.png</file>
+        <file>resources/images/icons/fit-to-width-32.png</file>
+        <file>resources/images/icons/rotate-clockwise-32.png</file>
+        <file>resources/images/icons/rotate-counter-clockwise-32.png</file>
+        <file>resources/images/icons/main_icon.png</file>
+        <file>qml/Viewer.qml</file>
+    </qresource>
+</RCC>
