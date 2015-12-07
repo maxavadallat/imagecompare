@@ -11,8 +11,13 @@ QT          += quickwidgets
 QT          += qml quick
 QT          += widgets
 
+macx: {
 # Icon
 ICON        = resources/images/icons/imagecompare.icns
+} else {
+# Icon
+ICON        = resources/images/icons/main_icon.png
+}
 
 # Soures
 SOURCES     += src/main.cpp \
