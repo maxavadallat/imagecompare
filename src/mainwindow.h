@@ -200,6 +200,9 @@ private slots:
     // Worker Result Ready Slot
     void workerResultReady(const int& aOperation, const int& aResult);
 
+    // View Window Closed Slot
+    void viewerWindowClosed();
+
     // File Renamed Slot
     void fileRenamed(const QString& aFileName);
 
@@ -356,6 +359,7 @@ private:
     // Transfer Options
     int                             transferOptions;
 
+    // Keyboard Modifiers
     Qt::KeyboardModifiers           keyModifiers;
 };
 

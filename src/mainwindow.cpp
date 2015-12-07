@@ -9,7 +9,13 @@
 #include <QSettings>
 #include <QFileDialog>
 
+#ifdef Q_OS_MACX
+
 #include <CoreServices/CoreServices.h>
+
+#else // Q_OS_MACX
+
+#endif // Q_OS_MACX
 
 #include "mainwindow.h"
 #include "viewerwindow.h"
@@ -929,6 +935,8 @@ void MainWindow::launchViewer(const QString& aFilePath)
     if (!viewerWindow) {
         // Get Instance
         viewerWindow = ViewerWindow::getInstance();
+        // Connect Signal
+        connect(viewerWindow, SIGNAL(windowClosed()), this, SLOT(viewerWindowClosed()));
     }
 
     // Init File Info
@@ -1163,6 +1171,17 @@ void MainWindow::workerResultReady(const int& aOperation, const int& aResult)
     }
 
     // ...
+}
+
+//==============================================================================
+// View Window Closed Slot
+//==============================================================================
+void MainWindow::viewerWindowClosed()
+{
+    qDebug() << "MainWindow::stopWorkerThread";
+
+    // Grab Keyboard
+    grabKeyboard();
 }
 
 //==============================================================================
@@ -1408,6 +1427,11 @@ void MainWindow::keyReleaseEvent(QKeyEvent* aEvent)
             case Qt::Key_Minus:
                 // Zoom Out
                 zoomOut();
+            break;
+
+            case Qt::Key_Asterisk:
+                // Zoom To Fit
+                zoomToFit();
             break;
 
             case Qt::Key_Space:

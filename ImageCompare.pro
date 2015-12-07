@@ -74,8 +74,11 @@ RESOURCES   += imagecompare.qrc
 OTHER_FILES += \
             createdmg.sh
 
+macx: {
 # Libs
 LIBS        += -framework Carbon
+} else {
+}
 
 # Output/Intermediate Dirs
 OBJECTS_DIR = ./objs

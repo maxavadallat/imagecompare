@@ -14,13 +14,14 @@ Rectangle {
         id: viewerImage
         anchors.centerIn: parent
 
-        width: sourceSize.width * mainViewController.zoomLevel
-        height: sourceSize.height * mainViewController.zoomLevel
+        width: sourceSize.width * viewerViewController.zoomLevel
+        height: sourceSize.height * viewerViewController.zoomLevel
+
         Behavior on width { NumberAnimation { duration: Const.defaultAnimDuration } }
         Behavior on height { NumberAnimation { duration: Const.defaultAnimDuration } }
 
-        anchors.horizontalCenterOffset: mainViewController.panPosX
-        anchors.verticalCenterOffset: mainViewController.panPosY
+        anchors.horizontalCenterOffset: viewerViewController.panPosX
+        anchors.verticalCenterOffset: viewerViewController.panPosY
 
         horizontalAlignment: Image.AlignHCenter
         verticalAlignment: Image.AlignVCenter
@@ -40,23 +41,22 @@ Rectangle {
 
             return "file://" + viewerViewController.currentFile;
         }
-    }
 
-    // Mouse Area
-    MouseArea {
-        id: viewerMouseArea
-        anchors.fill: parent
-
-        // On Double Click
-        onDoubleClicked: {
-            // Toggle Viewer FullScreen
-
+        onSourceSizeChanged: {
+            // Set Image Source Width
+            viewerViewController.imageSourceWidth = viewerImage.sourceSize.width;
+            // Set Image Source Height
+            viewerViewController.imageSourceHeight = viewerImage.sourceSize.height;
         }
-        // On Wheel
-        onWheel: {
-            //console.log("viewerMouseArea.onWheel - wheel: " + wheel.angleDelta.y);
 
-            // ...
+        onWidthChanged: {
+            // Set Image Width
+            viewerViewController.imageWidth = viewerImage.width;
+        }
+
+        onHeightChanged: {
+            // Set Image Height
+            viewerViewController.imageHeight = viewerImage.height;
         }
     }
 

@@ -310,11 +310,13 @@
     </property>
     <addaction name="actionAbout"/>
     <addaction name="separator"/>
+    <addaction name="actionOpen_File_Left"/>
+    <addaction name="actionOpen_File_Right"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose_Left_File"/>
+    <addaction name="actionClose_Right_File"/>
+    <addaction name="separator"/>
     <addaction name="actionPreferences"/>
-    <addaction name="separator"/>
-    <addaction name="actionRename"/>
-    <addaction name="separator"/>
-    <addaction name="actionDelete"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -332,14 +334,28 @@
     <property name="title">
      <string>Tools</string>
     </property>
+    <addaction name="actionViewer"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionHelp"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionZoom_In"/>
+    <addaction name="actionZoom_Out"/>
+    <addaction name="actionZoom_Default"/>
+    <addaction name="actionZoom_To_Fit"/>
+    <addaction name="separator"/>
+    <addaction name="actionReset"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -412,6 +428,67 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+F</string>
+   </property>
+  </action>
+  <action name="actionViewer">
+   <property name="text">
+    <string>Viewer</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="actionOpen_File_Left">
+   <property name="text">
+    <string>Open File Left</string>
+   </property>
+  </action>
+  <action name="actionOpen_File_Right">
+   <property name="text">
+    <string>Open File Right</string>
+   </property>
+  </action>
+  <action name="actionClose_Left_File">
+   <property name="text">
+    <string>Close Left File</string>
+   </property>
+  </action>
+  <action name="actionClose_Right_File">
+   <property name="text">
+    <string>Close Right File</string>
+   </property>
+  </action>
+  <action name="actionZoom_In">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="actionZoom_Out">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+  </action>
+  <action name="actionZoom_Default">
+   <property name="text">
+    <string>Zoom Default</string>
+   </property>
+  </action>
+  <action name="actionZoom_To_Fit">
+   <property name="text">
+    <string>Zoom To Fit</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset</string>
    </property>
   </action>
  </widget>

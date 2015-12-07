@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 #include <QQmlContext>
+#include <QKeyEvent>
+#include <QWheelEvent>
+#include <QMouseEvent>
+#include <QResizeEvent>
 
 #include "constants.h"
 
@@ -22,6 +26,18 @@ class ViewerWindow : public QMainWindow
 
     Q_PROPERTY(QString currentFile READ getCurrentFile WRITE setCurrentFile NOTIFY currentFileChanged)
 
+    Q_PROPERTY(qreal zoomLevel READ getZoomLevel NOTIFY zoomLevelChanged)
+
+    Q_PROPERTY(qreal panPosX READ getPanPosX WRITE setPanPosY NOTIFY panPosXChanged)
+    Q_PROPERTY(qreal panPosY READ getPanPosY WRITE setPanPosY NOTIFY panPosYChanged)
+
+    Q_PROPERTY(qreal imageWidth READ getImageWidth WRITE setImageWidth NOTIFY imageWidthChanged)
+    Q_PROPERTY(qreal imageHeight READ getImageHeight WRITE setImageHeight NOTIFY imageHeightChanged)
+
+    Q_PROPERTY(qreal imageSourceWidth READ getSourceWidth WRITE setSourceWidth NOTIFY sourceWidthChanged)
+    Q_PROPERTY(qreal imageSourceHeight READ getSourceHeight WRITE setSourceHeight NOTIFY sourceHeightChanged)
+
+
 public:
 
     // Static Constructor
@@ -34,10 +50,64 @@ public:
     // Set Current File
     void setCurrentFile(const QString& aCurrentFile);
 
+    // Get Zoom Level
+    qreal getZoomLevel();
+
+    // Get Pan Pos X
+    qreal getPanPosX();
+    // Set Pan Pos X
+    void setPanPosX(const qreal& aPanPosX);
+
+    // Get Pan Pos Y
+    qreal getPanPosY();
+    // Set Pan Pos Y
+    void setPanPosY(const qreal& aPanPosY);
+
+    // Get Image Width
+    qreal getImageWidth();
+    // Set Image Width
+    void setImageWidth(const qreal& aWidth);
+
+    // Get Image Height
+    qreal getImageHeight();
+    // Set Image Height
+    void setImageHeight(const qreal& aHeight);
+
+    // Get Source  Width
+    qreal getSourceWidth();
+    // Set Source  Width
+    void setSourceWidth(const qreal& aWidth);
+
+    // Get Source  Height
+    qreal getSourceHeight();
+    // Set Source  Height
+    void setSourceHeight(const qreal& aHeight);
+
 signals:
 
     // Current File Changed Slot
     void currentFileChanged(const QString& aFilePath);
+
+    // Zoom Level Changed Signal
+    void zoomLevelChanged(const qreal& aZoomLevel);
+
+    // Pan Pos X Changed Signal
+    void panPosXChanged(const qreal& aPanPosX);
+    // Pan Pos Y Changed Signal
+    void panPosYChanged(const qreal& aPanPosY);
+
+    // Image Width Changed Signal
+    void imageWidthChanged(const qreal& aWidth);
+    // Image Height changed Signal
+    void imageHeightChanged(const qreal& aHeight);
+
+    // Source  Width Changed Signal
+    void sourceWidthChanged(const qreal& aSourceWidth);
+    // Source  Height Changed Signal
+    void sourceHeightChanged(const qreal& aSourceHeight);
+
+    // Window Closed Signal
+    void windowClosed();
 
 public slots:
 
@@ -76,13 +146,57 @@ private slots:
     void on_actionQuit_triggered();
 
 private:
+
     friend class MainWindow;
 
     // Restore UI
     void restoreUI();
+    // Update Menu
+    void updateMenu();
 
     // Save Settings
     void saveSettings();
+
+    // Zoom In
+    void zoomIn();
+    // Zoom Out
+    void zoomOut();
+    // Zoom Default
+    void zoomDefault();
+    // Zoom To Fit
+    void zoomToFit();
+    // Reset
+    void reset();
+
+    // Adjust Zoom Level To Fit
+    void adjustZoomLevelToFit();
+
+    // Set Zoom Level
+    void setZoomLevel(const qreal& aZoomLevel);
+
+protected:
+
+    // Key Press Event
+    virtual void keyPressEvent(QKeyEvent* aEvent);
+    // Key Release Event
+    virtual void keyReleaseEvent(QKeyEvent* aEvent);
+    // Mouse Wheel Event
+    virtual void wheelEvent(QWheelEvent* aEvent);
+
+    // Mouse Presse Event
+    virtual void mousePressEvent(QMouseEvent* aEvent);
+    // Mouse Move Event
+    virtual void mouseMoveEvent(QMouseEvent* aEvent);
+    // Mouse Release Event
+    virtual void mouseReleaseEvent(QMouseEvent* aEvent);
+
+    // Resize Event
+    virtual void resizeEvent(QResizeEvent* aEvent);
+
+    // Close Event
+    virtual void closeEvent(QCloseEvent* aEvent);
+    // Hide Event
+    virtual void hideEvent(QHideEvent* aEvent);
 
 private:
 
@@ -99,6 +213,8 @@ private:
     int                     zoomLevelIndex;
     // Zoom Level
     qreal                   zoomLevel;
+    // Zoom Fit
+    bool                    zoomFit;
 
     // Pan Press X
     qreal                   panPressX;
@@ -114,6 +230,22 @@ private:
     qreal                   panPosX;
     // Pan Pos Y
     qreal                   panPosY;
+
+    // Left Mouse Button Pressed
+    bool                    leftPressed;
+
+    // Image Width
+    qreal                   imageWidth;
+    // Image Height
+    qreal                   imageHeight;
+
+    // Image Width
+    qreal                   imageSourceWidth;
+    // Image Height
+    qreal                   imageSourceHeight;
+
+    // Keyboard Modifiers
+    Qt::KeyboardModifiers   keyModifiers;
 
 };
 
