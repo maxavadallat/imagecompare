@@ -118,6 +118,9 @@ public slots:
     // Launch File Open Left
     void launchFileOpen(const QString& aSide);
 
+    // Launch Help
+    void launchHelp();
+
     // Show Window
     void showWindow();
     // Hide Window
@@ -249,6 +252,28 @@ private slots:
     void on_zoomInButton_clicked();
     // Zoom To Fit Button Clicked Slot
     void on_zoomToFitButton_clicked();
+    // Action Launch Viewer Triggered Slot
+    void on_actionViewer_triggered();
+    // Action Launch Help Triggered Slot
+    void on_actionHelp_triggered();
+    // Action Open Left File Triggered Slot
+    void on_actionOpen_File_Left_triggered();
+    // Action Open Right File Triggered Slot
+    void on_actionOpen_File_Right_triggered();
+    // Action Close Left File Triggered Slot
+    void on_actionClose_Left_File_triggered();
+    // Action Close Right File Triggered Slot
+    void on_actionClose_Right_File_triggered();
+    // Action Zoom In Triggered Slot
+    void on_actionZoom_In_triggered();
+    // Action Zoom Out Triggered Slot
+    void on_actionZoom_Out_triggered();
+    // Action Zoom To Default Triggered Slot
+    void on_actionZoom_Default_triggered();
+    // Action Zoom to Fit Triggered Slot
+    void on_actionZoom_To_Fit_triggered();
+    // Action Reset Triggered Slot
+    void on_actionReset_triggered();
     // Exit Button Clicked Slot
     void on_exitButton_clicked();
 

@@ -1072,6 +1072,16 @@ void MainWindow::launchFileOpen(const QString& aSide)
 }
 
 //==============================================================================
+// Launch Help
+//==============================================================================
+void MainWindow::launchHelp()
+{
+    qDebug() << "MainWindow::launchHelp";
+
+    // ...
+}
+
+//==============================================================================
 // Show Window
 //==============================================================================
 void MainWindow::showWindow()
@@ -1376,6 +1386,105 @@ void MainWindow::on_zoomInButton_clicked()
 void MainWindow::on_zoomToFitButton_clicked()
 {
     zoomToFit();
+}
+
+//==============================================================================
+// Action Launch Viewer Triggered Slot
+//==============================================================================
+void MainWindow::on_actionViewer_triggered()
+{
+    // Launch Viewer
+    launchViewer();
+}
+
+//==============================================================================
+// Action Launch Help Triggered Slot
+//==============================================================================
+void MainWindow::on_actionHelp_triggered()
+{
+    // Launch Help
+    launchHelp();
+}
+
+//==============================================================================
+// Action Open Left File Triggered Slot
+//==============================================================================
+void MainWindow::on_actionOpen_File_Left_triggered()
+{
+    // Launch File Open
+    launchFileOpen(CONTEXT_PROPERTY_SIDE_VALUE_LEFT);
+}
+
+//==============================================================================
+// Action Open Right File Triggered Slot
+//==============================================================================
+void MainWindow::on_actionOpen_File_Right_triggered()
+{
+    // Launch File Open
+    launchFileOpen(CONTEXT_PROPERTY_SIDE_VALUE_RIGHT);
+}
+
+//==============================================================================
+// Action Close Left File Triggered Slot
+//==============================================================================
+void MainWindow::on_actionClose_Left_File_triggered()
+{
+    // Reset Left Image
+    setCurrentFileLeft("");
+}
+
+//==============================================================================
+// Action Close Right File Triggered Slot
+//==============================================================================
+void MainWindow::on_actionClose_Right_File_triggered()
+{
+    // Reset Right Image
+    setCurrentFileRight("");
+}
+
+//==============================================================================
+// Action Zoom In Triggered Slot
+//==============================================================================
+void MainWindow::on_actionZoom_In_triggered()
+{
+    // Zoom In
+    zoomIn();
+}
+
+//==============================================================================
+// Action Zoom Out Triggered Slot
+//==============================================================================
+void MainWindow::on_actionZoom_Out_triggered()
+{
+    // Zoom Out
+    zoomOut();
+}
+
+//==============================================================================
+// Action Zoom To Default Triggered Slot
+//==============================================================================
+void MainWindow::on_actionZoom_Default_triggered()
+{
+    // Zoom To Default
+    zoomDefault();
+}
+
+//==============================================================================
+// Action Zoom to Fit Triggered Slot
+//==============================================================================
+void MainWindow::on_actionZoom_To_Fit_triggered()
+{
+    // Zoom To Fit
+    zoomToFit();
+}
+
+//==============================================================================
+// Action Reset Triggered Slot
+//==============================================================================
+void MainWindow::on_actionReset_triggered()
+{
+    // Reset
+    reset();
 }
 
 //==============================================================================

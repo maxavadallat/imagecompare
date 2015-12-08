@@ -385,19 +385,6 @@
     <string>Q</string>
    </property>
   </action>
-  <action name="actionRename">
-   <property name="text">
-    <string>Rename</string>
-   </property>
-  </action>
-  <action name="actionDelete">
-   <property name="text">
-    <string>Delete</string>
-   </property>
-   <property name="shortcut">
-    <string>Del</string>
-   </property>
-  </action>
   <action name="actionRotate_Left">
    <property name="text">
     <string>Rotate Left</string>
