@@ -28,6 +28,7 @@ Item {
     }
 
     Image {
+        id: compareImage
         anchors.centerIn: parent
 
         width: sourceSize.width * mainViewController.zoomLevel

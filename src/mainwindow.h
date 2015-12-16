@@ -46,6 +46,10 @@ class MainWindow : public QMainWindow
     Q_PROPERTY(qreal panPosX READ getPanPosX WRITE setPanPosY NOTIFY panPosXChanged)
     Q_PROPERTY(qreal panPosY READ getPanPosY WRITE setPanPosY NOTIFY panPosYChanged)
 
+    Q_PROPERTY(qreal threshold READ getThreshold WRITE setThreshold NOTIFY thresholdChanged)
+
+    Q_PROPERTY(bool hideSources READ getHideSources WRITE setHideSources NOTIFY hideSourcesChanged)
+
 public:
 
     // Static Constructor
@@ -90,6 +94,16 @@ public:
     qreal getPanPosY();
     // Set Pan Pos Y
     void setPanPosY(const qreal& aPanPosY);
+
+    // Get Threshold
+    qreal getThreshold();
+    // Set Threshold
+    void setThreshold(const qreal& aThreshold);
+
+    // Get Hide Sources
+    bool getHideSources();
+    // Set Hide Sources
+    void setHideSources(const bool& aHideSources);
 
 protected:
 
@@ -180,6 +194,12 @@ signals:
     void panPosXChanged(const qreal& aPanPosX);
     // Pan Pos Y Changed Signal
     void panPosYChanged(const qreal& aPanPosY);
+
+    // Threshold Changed Signal
+    void thresholdChanged(const qreal& aThreshold);
+
+    // Hide Sources Changed Signal
+    void hideSourcesChanged(const bool& aHideSources);
 
     // Current File Updated Signal
     void currentFileUdated();
@@ -358,6 +378,14 @@ private:
     qreal                           panPosX;
     // Pan Pos Y
     qreal                           panPosY;
+
+    // Last Threshold
+    qreal                           lastThreshold;
+    // Compare Threshold
+    qreal                           threshold;
+
+    // Hide Sources In Compare View
+    bool                            hideSources;
 
     // Viewer Window
     ViewerWindow*                   viewerWindow;

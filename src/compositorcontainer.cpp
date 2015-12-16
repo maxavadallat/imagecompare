@@ -15,7 +15,9 @@ CompositorContainer::CompositorContainer(QWidget* aParent)
     , compositeHeight(0.0)
     , sourceCompositeWidth(0.0)
     , sourceCompositeHeight(0.0)
-    , pressed(false)
+    , leftPressed(false)
+    , rightPressed(false)
+    , threshold(DEFAULT_COMPARE_THRESHOLD)
 {
     // ...
 
@@ -118,16 +120,74 @@ void CompositorContainer::setCompositeHeight(const qreal& aHeight)
 }
 
 //==============================================================================
+// Get Threshold
+//==============================================================================
+qreal CompositorContainer::getThreshold()
+{
+    return threshold;
+}
+
+//==============================================================================
+// Set Threshold
+//==============================================================================
+void CompositorContainer::setThreshold(const qreal& aThreshold)
+{
+    // Get new Threshold
+    qreal newThreshold = qBound(0.0, aThreshold, DEFAULT_COMPARE_THRESHOLD_MAX);
+
+    // Check Compare Threshold
+    if (threshold != newThreshold) {
+        qDebug() << "CompositorContainer::setThreshold - newThreshold: " << newThreshold;
+        // Set Compare Threshold
+        threshold = newThreshold;
+        // Emit Compare Threshold Changed Signal
+        emit thresholdChanged(threshold);
+    }
+}
+
+//==============================================================================
+// Get Right Pressed
+//==============================================================================
+bool CompositorContainer::getRightPressed()
+{
+    return rightPressed;
+}
+
+//==============================================================================
+// Set Right Pressed
+//==============================================================================
+void CompositorContainer::setRightPressed(const bool& aPressed)
+{
+    // Check Right Pressed
+    if (rightPressed != aPressed) {
+        // Set Right Pressed
+        rightPressed = aPressed;
+        // Emit Right Pressed Changed Signal
+        emit rightPressedChanged(rightPressed);
+    }
+}
+
+//==============================================================================
 // Mouse Press Event
 //==============================================================================
 void CompositorContainer::mousePressEvent(QMouseEvent* aEvent)
 {
     // Check Event
     if (aEvent) {
-        // Set Pressed
-        pressed = true;
-        // Emit Mouse pressed Signal
-        emit mousePressed(aEvent->pos());
+        // Check Mouse Button
+        if (aEvent->button() == Qt::LeftButton) {
+            // Set Pressed
+            leftPressed = true;
+            // Emit Mouse pressed Signal
+            emit mousePressed(aEvent->pos());
+        } else if (aEvent->button() == Qt::RightButton) {
+            // Set Right Pressed
+            setRightPressed(true);
+            // Set Original Pos
+            originalPosX = aEvent->pos().x();
+            // Set Original Opacity
+            originalThreshold = threshold;
+        }
     }
 
     QQuickWidget::mousePressEvent(aEvent);
@@ -141,9 +201,14 @@ void CompositorContainer::mouseMoveEvent(QMouseEvent* aEvent)
     // Check Event
     if (aEvent) {
         // Check Pressed
-        if (pressed) {
+        if (leftPressed) {
             // Emit Mouse Moved Signal
             emit mouseMoved(aEvent->pos());
+        } else if (rightPressed) {
+            // Calculate Threshold Delta
+            qreal delta = originalPosX - aEvent->pos().x();
+            // Set Threshold
+            setThreshold(originalThreshold - delta);
         }
     }
 
@@ -157,10 +222,18 @@ void CompositorContainer::mouseReleaseEvent(QMouseEvent* aEvent)
 {
     // Check Event
     if (aEvent) {
-        // Reset Pressed
-        pressed = false;
-        // Emit Mouse Released Signal
-        emit mouseReleased(aEvent->pos());
+        // Check Mouse Button
+        if (aEvent->button() == Qt::LeftButton) {
+            // Reset Pressed
+            leftPressed = false;
+            // Emit Mouse Released Signal
+            emit mouseReleased(aEvent->pos());
+        } else if (aEvent->button() == Qt::RightButton) {
+            // Reset Right Pressed
+            setRightPressed(false);
+            // Emit Right Mouse Button Released Signal
+            emit mouseRightReleased(aEvent->pos());
+        }
     }
 
     QQuickWidget::mouseReleaseEvent(aEvent);

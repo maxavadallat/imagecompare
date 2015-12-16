@@ -2,12 +2,10 @@ import QtQuick 2.0
 import "js/constants.js" as Const
 
 Item {
-    id: opacitySliderRoot
+    id: thresholdSliderRoot
 
-    width: Const.defaultOpacitySliderWidth
-    height: Const.defaultOpacitySliderHeight
-
-    property string side: "left"
+    width: Const.defaultThresholdSliderWidth
+    height: Const.defaultThresholdSliderHeight
 
     opacity: 1.0
 
@@ -23,11 +21,10 @@ Item {
         anchors.centerIn: parent
         verticalAlignment: Text.AlignVCenter
         text: {
-            var value = sideViewController.side == "left" ? mainViewController.opacityLeft : mainViewController.opacityRight;
-            return qsTr("Opacity: ") + Math.round(value * 100) + "%";
+            var value = mainViewController.threshold;
+            return qsTr("Threshold: ") + Math.round(value);
         }
 
         color: Const.defaultFontColor
     }
 }
-

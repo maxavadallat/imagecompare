@@ -44,7 +44,9 @@ var defaultProgressIndicatorHeight      = 40;
 
 var defaultProgressBarHeight            = 16;
 
-var defaultOpacitySliderWidth           = 48;
+var defaultOpacitySliderWidth           = 96;
 var defaultOpacitySliderHeight          = 280;
 
+var defaultThresholdSliderWidth         = 280;
+var defaultThresholdSliderHeight        = 48;
 

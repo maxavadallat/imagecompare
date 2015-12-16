@@ -15,7 +15,7 @@ class SideImageContainer : public QQuickWidget
 
     Q_PROPERTY(qreal opacity READ getOpacity WRITE setOpacity NOTIFY opacityChanged)
 
-    Q_PROPERTY(bool rightPressed READ getRightPressed WRITE setRightPressed NOTIFY rightPressedChanged)
+    Q_PROPERTY(bool rightPressed READ getRightPressed NOTIFY rightPressedChanged)
 
 public:
 

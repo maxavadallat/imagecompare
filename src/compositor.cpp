@@ -21,15 +21,14 @@ Compositor::Compositor(QQuickItem* aParent)
     , imageScaledLeft(QImage())
     , sourceRectLeft(QRect(0, 0, 0, 0))
     , targetRectLeft(QRect(0, 0, 0, 0))
-    //, opacityLeft(DEFAULT_IMAGE_OPACITY_LEFT)
     , imageRight(QImage())
     , imageScaledRight(QImage())
     , sourceRectRight(QRect(0, 0, 0, 0))
     , targetRectRight(QRect(0, 0, 0, 0))
-    //, opacityRight(DEFAULT_IMAGE_OPACITY_RIGHT)
     , zoomLevel(1.0)
     , panPosX(0)
     , panPosY(0)
+    , threshold(DEFAULT_COMPARE_THRESHOLD)
     , worker(NULL)
 {
     // ...
@@ -375,6 +374,28 @@ void Compositor::setPanPosY(const qreal& aPanPosY)
 }
 
 //==============================================================================
+// Get Threshold
+//==============================================================================
+qreal Compositor::getThreshold()
+{
+    return threshold;
+}
+
+//==============================================================================
+// Set Threshold
+//==============================================================================
+void Compositor::setThreshold(const qreal& aThreshold)
+{
+    // Check Compare Threshold
+    if (threshold != aThreshold) {
+        // Set Compare Threshold
+        threshold = aThreshold;
+        // Emit Compare Threshold Changed Signal
+        emit thresholdChanged(threshold);
+    }
+}
+
+//==============================================================================
 // Paint
 //==============================================================================
 void Compositor::paint(QPainter* aPainter)
@@ -402,6 +423,7 @@ void Compositor::paint(QPainter* aPainter)
             aPainter->drawImage(targetRectRight, imageScaledRight, sourceRectRight);
         }
 */
+/*
         // Set Pen
         aPainter->setPen(Qt::NoPen);
         // Set Brush
@@ -409,7 +431,7 @@ void Compositor::paint(QPainter* aPainter)
 
         // Draw Overlay Rect
         aPainter->drawRect(boundingRect());
-
+*/
         // Restore Painter
         aPainter->restore();
     }

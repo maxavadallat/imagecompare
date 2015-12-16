@@ -52,6 +52,8 @@ class Compositor : public QQuickPaintedItem
     Q_PROPERTY(qreal compositeWidth READ getCompositeWidth NOTIFY compositeWidthChanged)
     Q_PROPERTY(qreal compositeHeight READ getCompositeHeight NOTIFY compositeHeightChanged)
 
+    Q_PROPERTY(qreal threshold READ getThreshold WRITE setThreshold NOTIFY thresholdChanged)
+
 public:
 
     // Compositor Status Type
@@ -110,6 +112,11 @@ public:
     // Set Pan Pos Y
     void setPanPosY(const qreal& aPanPosY);
 
+    // Get Threshold
+    qreal getThreshold();
+    // Set Threshold
+    void setThreshold(const qreal& aThreshold);
+
     // Paint
     virtual void paint(QPainter* aPainter);
 
@@ -148,6 +155,9 @@ signals:
     void panPosXChanged(const qreal& aPanPosX);
     // Pan Pos Y Changed Signal
     void panPosYChanged(const qreal& aPanPosY);
+
+    // Threshold Changed Signal
+    void thresholdChanged(const qreal& aThreshold);
 
     // Operate Worker Signel
     void operateWorker(const int& aOperation);
@@ -230,8 +240,6 @@ private:
     QRectF              sourceRectLeft;
     // Left Target Rect
     QRectF              targetRectLeft;
-//    // Left Image Opacity
-//    qreal               opacityLeft;
 
     // Right Image
     QImage              imageRight;
@@ -241,8 +249,6 @@ private:
     QRectF              sourceRectRight;
     // Right Target Rect
     QRectF              targetRectRight;
-//    // Right Image Opacity
-//    qreal               opacityRight;
 
     // Zoom Level
     qreal               zoomLevel;
@@ -250,6 +256,9 @@ private:
     qreal               panPosX;
     // Pan Pos Y
     qreal               panPosY;
+
+    // Compare Threshold
+    qreal               threshold;
 
     // Worker Thread
     QThread             workerThread;

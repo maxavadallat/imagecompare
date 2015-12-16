@@ -16,5 +16,6 @@
         <file>qml/Viewer.qml</file>
         <file>resources/images/icons/compare-orange-128.png</file>
         <file>qml/OpacitySlider.qml</file>
+        <file>qml/ThresholdSlider.qml</file>
     </qresource>
 </RCC>

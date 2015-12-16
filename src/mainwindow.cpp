@@ -76,6 +76,10 @@ MainWindow::MainWindow(QWidget* aParent)
     , zoomFit(false)
     , zoomLevelIndex(DEFAULT_ZOOM_LEVEL_INDEX)
     , zoomLevel(0.00)
+    , panPosX(0.0)
+    , panPosY(0.0)
+    , threshold(DEFAULT_COMPARE_THRESHOLD)
+    , hideSources(false)
     , viewerWindow(NULL)
     , aboutDialog(NULL)
     , dirSelector(NULL)
@@ -294,6 +298,9 @@ void MainWindow::setCurrentFileLeft(const QString& aCurrentFile)
 
         // ...
 
+        // Show Status Text
+        showStatusText(tr("Left Image: ") + currentFileLeft);
+
         // Update Menu
         updateMenu();
     }
@@ -323,6 +330,9 @@ void MainWindow::setCurrentFileRight(const QString& aCurrentFile)
 
         // ...
 
+        // Show Status Text
+        showStatusText(tr("Right Image: ") + currentFileRight);
+
         // Update Menu
         updateMenu();
     }
@@ -347,6 +357,9 @@ void MainWindow::setOpacityLeft(const qreal& aOpacity)
         opacityLeft = aOpacity;
         // Emit Opacity Changed Signal
         emit opacityLeftChanged(opacityLeft);
+
+        // Show Status Text
+        showStatusText(tr("Left Image Opacity: ") + QString("%1 %").arg(qRound(opacityLeft * 100)));
     }
 }
 
@@ -369,6 +382,9 @@ void MainWindow::setOpacityRight(const qreal& aOpacity)
         opacityRight = aOpacity;
         // Emit Opacity Changed Signal
         emit opacityRightChanged(opacityRight);
+
+        // Show Status Text
+        showStatusText(tr("Right Image Opacity: ") + QString("%1 %").arg(qRound(opacityRight * 100)));
     }
 }
 
@@ -507,6 +523,60 @@ void MainWindow::setPanPosY(const qreal& aPanPosY)
         emit panPosYChanged(panPosY);
 
         // ...
+    }
+}
+
+//==============================================================================
+// Get Threshold
+//==============================================================================
+qreal MainWindow::getThreshold()
+{
+    return threshold;
+}
+
+//==============================================================================
+// Set Threshold
+//==============================================================================
+void MainWindow::setThreshold(const qreal& aThreshold)
+{
+    // Get new Threshold
+    qreal newThreshold = qBound(0.0, aThreshold, DEFAULT_COMPARE_THRESHOLD_MAX);
+
+    // Check Compare Threshold
+    if (threshold != newThreshold) {
+        // Set Compare Threshold
+        threshold = newThreshold;
+        // Emit Compare Threshold Changed Signal
+        emit thresholdChanged(threshold);
+
+        // Show Status Text
+        showStatusText(tr("Compare Threshold: ") + QString("%1").arg(threshold));
+    }
+}
+
+//==============================================================================
+// Get Hide Sources
+//==============================================================================
+bool MainWindow::getHideSources()
+{
+    return hideSources;
+}
+
+//==============================================================================
+// Set Hide Sources
+//==============================================================================
+void MainWindow::setHideSources(const bool& aHideSources)
+{
+    // Check Hide Sources
+    if (hideSources != aHideSources) {
+        // Set Hide Sources
+        hideSources = aHideSources;
+        // Emit Hide Sources Changed Signal
+        emit hideSourcesChanged(hideSources);
+
+        // Show Status Text
+        showStatusText(hideSources ? tr("Compare Sources: Hidden") : tr("Compare Sources: Shown"));
+
     }
 }
 
@@ -915,6 +985,9 @@ void MainWindow::reset()
     setOpacityLeft(DEFAULT_IMAGE_OPACITY_LEFT);
     setOpacityRight(DEFAULT_IMAGE_OPACITY_RIGHT);
 
+    // Reset Threshold
+    setThreshold(DEFAULT_COMPARE_THRESHOLD);
+
     // Init Sizes
     QList<int> sizes;
 
@@ -924,6 +997,9 @@ void MainWindow::reset()
 
     // Reset Splitter
     ui->mainSplitter->setSizes(sizes);
+
+    // Show Status Text
+    showStatusText(tr("Reset"));
 }
 
 //==============================================================================
@@ -1265,9 +1341,10 @@ void MainWindow::panFinished(const QPoint& aPos)
 //==============================================================================
 void MainWindow::compositorDoubleClicked()
 {
-    qDebug() << "MainWindow::compositorDoubleClicked";
+    //qDebug() << "MainWindow::compositorDoubleClicked";
 
-    // ...
+    // Toggle Hide Sources
+    setHideSources(!hideSources);
 }
 
 //==============================================================================

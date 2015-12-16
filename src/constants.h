@@ -115,6 +115,8 @@ enum RotationDirectionType
 
 #define DEFAULT_SIDE_VIEW_IMAGE_OPACITY                 0.5
 
+#define DEFAULT_COMPARE_THRESHOLD                       50.0
+#define DEFAULT_COMPARE_THRESHOLD_MAX                   100.0
 
 #endif // CONSTANTS_H
 

@@ -8,70 +8,173 @@ Item {
     width: 400
     height: 600
 
+    Connections {
+        target: compositorViewController
+
+        onThresholdChanged: {
+            // Set Threshold
+            mainViewController.threshold = compositorViewController.threshold;
+        }
+    }
+
+
     Rectangle {
         anchors.fill: parent
         color: "gray"
     }
 
-    Image {
-        id: leftImage
-        anchors.centerIn: parent
+    Item {
+        id: leftImageContainer
+        anchors.fill: parent
+        //anchors.margins: 10
 
-        width: sourceSize.width * mainViewController.zoomLevel
-        height: sourceSize.height * mainViewController.zoomLevel
+        clip: true
 
-        Behavior on width { NumberAnimation { duration: Const.defaultAnimDuration } }
-        Behavior on height { NumberAnimation { duration: Const.defaultAnimDuration } }
+        visible: true
 
-        anchors.horizontalCenterOffset: mainViewController.panPosX
-        anchors.verticalCenterOffset: mainViewController.panPosY
-        horizontalAlignment: Image.AlignHCenter
-        verticalAlignment: Image.AlignVCenter
-        fillMode: Image.Stretch
-        smooth: false
-        opacity: mainViewController.opacityLeft
-        Behavior on opacity { NumberAnimation { duration: Const.defaultAnimDuration } }
-        visible: opacity > 0.0
+        Image {
+            id: leftImage
+            anchors.centerIn: parent
 
-        source: {
-            var fileName = mainViewController.currentFileLeft
+            width: sourceSize.width * mainViewController.zoomLevel
+            height: sourceSize.height * mainViewController.zoomLevel
 
-            if (fileName.length > 0) {
-                return "file://" + fileName;
+            Behavior on width { NumberAnimation { duration: Const.defaultAnimDuration } }
+            Behavior on height { NumberAnimation { duration: Const.defaultAnimDuration } }
+
+            anchors.horizontalCenterOffset: mainViewController.panPosX
+            anchors.verticalCenterOffset: mainViewController.panPosY
+            horizontalAlignment: Image.AlignHCenter
+            verticalAlignment: Image.AlignVCenter
+            fillMode: Image.Stretch
+            smooth: false
+            opacity: mainViewController.opacityLeft
+            Behavior on opacity { NumberAnimation { duration: Const.defaultAnimDuration } }
+            visible: opacity > 0.0
+
+            source: {
+                var fileName = mainViewController.currentFileLeft
+
+                if (fileName.length > 0) {
+                    return "file://" + fileName;
+                }
+
+                return "";
             }
+        }
 
-            return "";
+        Rectangle {
+            anchors.fill: parent
+            color: "transparent"
+            border.width: 1
+            border.color: "#77000777"
         }
     }
 
-    Image {
-        id: rightImage
-        anchors.centerIn: parent
+    Item {
+        id: rightImageContainer
+        anchors.fill: parent
+        //anchors.margins: 10
 
-        width: sourceSize.width * mainViewController.zoomLevel
-        height: sourceSize.height * mainViewController.zoomLevel
+        clip: true
+
+        visible: true
+
+        Image {
+            id: rightImage
+            anchors.centerIn: parent
+
+            width: sourceSize.width * mainViewController.zoomLevel
+            height: sourceSize.height * mainViewController.zoomLevel
+
+            Behavior on width { NumberAnimation { duration: Const.defaultAnimDuration } }
+            Behavior on height { NumberAnimation { duration: Const.defaultAnimDuration } }
+
+            anchors.horizontalCenterOffset: mainViewController.panPosX
+            anchors.verticalCenterOffset: mainViewController.panPosY
+
+            horizontalAlignment: Image.AlignHCenter
+            verticalAlignment: Image.AlignVCenter
+
+            fillMode: Image.Stretch
+            smooth: false
+            opacity: mainViewController.opacityRight
+            Behavior on opacity { NumberAnimation { duration: Const.defaultAnimDuration } }
+            visible: opacity > 0.0
+
+            source: {
+                var fileName = mainViewController.currentFileRight;
+
+                if (fileName.length > 0) {
+                    return "file://" + fileName;
+                }
+
+                return "";
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "transparent"
+            border.width: 1
+            border.color: "#77777000"
+        }
+    }
+
+    ShaderEffect {
+        id: compareShader
+        anchors.fill: parent
+
+        width: Math.min(root.width, compositor.compositeWidth);
+        height: Math.min(root.height, compositor.compositeHeight);
 
         Behavior on width { NumberAnimation { duration: Const.defaultAnimDuration } }
         Behavior on height { NumberAnimation { duration: Const.defaultAnimDuration } }
 
-        anchors.horizontalCenterOffset: mainViewController.panPosX
-        anchors.verticalCenterOffset: mainViewController.panPosY
-        horizontalAlignment: Image.AlignHCenter
-        verticalAlignment: Image.AlignVCenter
-        fillMode: Image.Stretch
-        smooth: false
-        opacity: mainViewController.opacityRight
-        Behavior on opacity { NumberAnimation { duration: Const.defaultAnimDuration } }
-        visible: opacity > 0.0
+        property variant leftImageSource: ShaderEffectSource {
+            sourceItem: leftImageContainer
+            hideSource: mainViewController.hideSources
+        }
 
-        source: {
-            var fileName = mainViewController.currentFileRight;
+        property variant rightImageSource: ShaderEffectSource {
+            sourceItem: rightImageContainer
+            hideSource: mainViewController.hideSources
+        }
 
-            if (fileName.length > 0) {
-                return "file://" + fileName;
+        property real threshold: mainViewController.threshold
+
+        visible: (leftImage.source != "") && (rightImage.source != "")
+
+        fragmentShader: "
+            uniform sampler2D leftImageSource;
+            uniform sampler2D rightImageSource;
+            varying highp vec2 qt_TexCoord0;
+            uniform float threshold;
+            void main() {
+                // Just Draw Source
+                //gl_FragColor = texture2D(rightImage, qt_TexCoord0);
+                // Gradient
+                //gl_FragColor = vec4(qt_TexCoord0.x, qt_TexCoord0.y, qt_TexCoord0.x, 1.0);
+
+                lowp vec4 leftTexture = texture2D(leftImageSource, qt_TexCoord0);
+                lowp vec4 rightTexture = texture2D(rightImageSource, qt_TexCoord0);
+
+                lowp vec4 result;
+
+                result.r = (abs(leftTexture.r - rightTexture.r) - (1.0 - threshold * 0.01)) * 10.0;
+                result.g = (abs(leftTexture.g - rightTexture.g) - (1.0 - threshold * 0.01)) * 10.0;
+                result.b = (abs(leftTexture.b - rightTexture.b) - (1.0 - threshold * 0.01)) * 10.0;
+                result.a = 0.5;
+
+                gl_FragColor = result;
             }
+        "
 
-            return "";
+        Rectangle {
+            anchors.fill: parent
+            color: "transparent"
+            border.width: 1
+            border.color: "#77000077"
         }
     }
 
@@ -89,7 +192,7 @@ Item {
         panPosY: mainViewController.panPosY
 
         onStatusChanged: {
-            console.log("compositor.onStatusChanged - status: " + compositor.status + " - operation: " + compositor.operation);
+            //console.log("compositor.onStatusChanged - status: " + compositor.status + " - operation: " + compositor.operation);
 
             // Check Last Operation
             if (compositor.operation === 1 && compositor.status === 0) {
@@ -117,6 +220,13 @@ Item {
             // Set Source Composite Height
             compositorViewController.sourceCompositeHeight = aCompositeHeight;
         }
+    }
+
+    ThresholdSlider {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 72
+        opacity: compareShader.visible && compositorViewController.rightPressed ? 1.0 : 0.0
     }
 
     Column {
