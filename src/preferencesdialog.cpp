@@ -226,10 +226,51 @@ void PreferencesDialog::on_buttonBox_rejected()
 }
 
 //==============================================================================
+// On Show Grid Check Box Clicked Slot
+//==============================================================================
+void PreferencesDialog::on_showGridCheckBox_clicked()
+{
+
+}
+
+//==============================================================================
+// On threshold Changed Slot
+//==============================================================================
+void PreferencesDialog::on_thresholdSlider_actionTriggered(int action)
+{
+
+}
+
+//==============================================================================
+// On Right Opacity Changed Slot
+//==============================================================================
+void PreferencesDialog::on_rightOpacitySlider_actionTriggered(int action)
+{
+
+}
+
+//==============================================================================
+// On Left Opacity Changed Slot
+//==============================================================================
+void PreferencesDialog::on_leftOpacitySlider_actionTriggered(int action)
+{
+
+}
+
+//==============================================================================
+// On Hide Sources Check Box Clicked Slot
+//==============================================================================
+void PreferencesDialog::on_hideSourcesCheckBox_clicked()
+{
+
+}
+
+//==============================================================================
 // Destructor
 //==============================================================================
 PreferencesDialog::~PreferencesDialog()
 {
     delete ui;
 }
+
 

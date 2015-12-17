@@ -75,11 +75,12 @@ MainWindow::MainWindow(QWidget* aParent)
     , opacityRight(DEFAULT_IMAGE_OPACITY_RIGHT)
     , zoomFit(false)
     , zoomLevelIndex(DEFAULT_ZOOM_LEVEL_INDEX)
-    , zoomLevel(0.00)
+    , zoomLevel(zoomLevels[zoomLevelIndex])
     , panPosX(0.0)
     , panPosY(0.0)
     , threshold(DEFAULT_COMPARE_THRESHOLD)
     , hideSources(false)
+    , showGrid(false)
     , viewerWindow(NULL)
     , aboutDialog(NULL)
     , dirSelector(NULL)
@@ -223,9 +224,10 @@ void MainWindow::restoreUI()
 void MainWindow::updateMenu()
 {
     // Set Button Enabled
-    ui->zoomOutButton->setEnabled(zoomLevelIndex > 0);
-    ui->zoomInButton->setEnabled(zoomLevelIndex < DEFAULT_ZOOM_LEVEL_INDEX_MAX);
-    ui->zoomToFitButton->setEnabled(!zoomFit);
+    ui->resetButton->setEnabled((currentFileLeft != "" || currentFileRight != ""));
+    ui->zoomOutButton->setEnabled(zoomLevelIndex > 0 && (currentFileLeft != "" || currentFileRight != ""));
+    ui->zoomInButton->setEnabled(zoomLevelIndex < DEFAULT_ZOOM_LEVEL_INDEX_MAX && (currentFileLeft != "" || currentFileRight != ""));
+    ui->zoomToFitButton->setEnabled(!zoomFit && (currentFileLeft != "" || currentFileRight != ""));
 
     // ...
 }
@@ -359,7 +361,7 @@ void MainWindow::setOpacityLeft(const qreal& aOpacity)
         emit opacityLeftChanged(opacityLeft);
 
         // Show Status Text
-        showStatusText(tr("Left Image Opacity: ") + QString("%1 %").arg(qRound(opacityLeft * 100)));
+        //showStatusText(tr("Left Image Opacity: ") + QString("%1 %").arg(qRound(opacityLeft * 100)));
     }
 }
 
@@ -384,7 +386,32 @@ void MainWindow::setOpacityRight(const qreal& aOpacity)
         emit opacityRightChanged(opacityRight);
 
         // Show Status Text
-        showStatusText(tr("Right Image Opacity: ") + QString("%1 %").arg(qRound(opacityRight * 100)));
+        //showStatusText(tr("Right Image Opacity: ") + QString("%1 %").arg(qRound(opacityRight * 100)));
+    }
+}
+
+//==============================================================================
+// Get Zoom Level Index
+//==============================================================================
+int MainWindow::getZoomLevelIndex()
+{
+    return zoomLevelIndex;
+}
+
+//==============================================================================
+// Set Zoom Level Index
+//==============================================================================
+void MainWindow::setZoomLevelIndex(const int& aZoomLevelIndex, const bool& aForce)
+{
+    // Check Zoom Level Index
+    if (zoomLevelIndex != aZoomLevelIndex || aForce) {
+        // Set Zoom Level Index
+        zoomLevelIndex = aZoomLevelIndex;
+        // Emit Zoom Level Index Changed Signal
+        emit zoomLevelIndexChanged(zoomLevelIndex);
+
+        // Set Zoom Level
+        setZoomLevel(zoomLevels[zoomLevelIndex]);
     }
 }
 
@@ -478,6 +505,9 @@ void MainWindow::setPanPosX(const qreal& aPanPosX)
         emit panPosXChanged(panPosX);
 
         // ...
+
+        // Show Status Text
+        //showStatusText(tr("Paning pos: ") + QString("[%1:%2]").arg(panPosX).arg(panPosY));
     }
 }
 
@@ -523,6 +553,9 @@ void MainWindow::setPanPosY(const qreal& aPanPosY)
         emit panPosYChanged(panPosY);
 
         // ...
+
+        // Show Status Text
+        //showStatusText(tr("Paning pos: ") + QString("[%1:%2]").arg(panPosX).arg(panPosY));
     }
 }
 
@@ -550,7 +583,7 @@ void MainWindow::setThreshold(const qreal& aThreshold)
         emit thresholdChanged(threshold);
 
         // Show Status Text
-        showStatusText(tr("Compare Threshold: ") + QString("%1").arg(threshold));
+        //showStatusText(tr("Compare Threshold: ") + QString("%1").arg(threshold));
     }
 }
 
@@ -576,7 +609,31 @@ void MainWindow::setHideSources(const bool& aHideSources)
 
         // Show Status Text
         showStatusText(hideSources ? tr("Compare Sources: Hidden") : tr("Compare Sources: Shown"));
+    }
+}
 
+//==============================================================================
+// Get Show Grid
+//==============================================================================
+bool MainWindow::getShowGrid()
+{
+    return showGrid;
+}
+
+//==============================================================================
+// Set Show Grid
+//==============================================================================
+void MainWindow::setShowGrid(const bool& aShowGrid)
+{
+    // Check Show Grid
+    if (showGrid != aShowGrid) {
+        // Set Show Grid
+        showGrid = aShowGrid;
+        // Emit Show Grid changed Signal
+        emit showGridChanged(showGrid);
+
+        // Show Status Text
+        showStatusText(showGrid ? tr("Grid: Shown") : tr("Grid: Hidden"));
     }
 }
 
@@ -818,27 +875,33 @@ void MainWindow::zoomIn()
     if (zoomFit) {
         // Reset Zoom Fit
         zoomFit = false;
-        // Reset Zoom Level Index
-        zoomLevelIndex = 0;
+        // Init Zoom Level Index
+        int newZoomLevelIndex = 0;
         // Iterate Through Zoom Levels
-        while (zoomLevels[zoomLevelIndex] < zoomLevel && zoomLevelIndex < DEFAULT_ZOOM_LEVEL_INDEX_MAX) {
+        while (zoomLevels[newZoomLevelIndex] < zoomLevel && newZoomLevelIndex < DEFAULT_ZOOM_LEVEL_INDEX_MAX) {
             // Inc Zoom Level
-            zoomLevelIndex++;
+            newZoomLevelIndex++;
         }
 
+        // Set Zoom Level Index
+        setZoomLevelIndex(newZoomLevelIndex);
+
         // Set Zoom Level
-        setZoomLevel(zoomLevels[zoomLevelIndex]);
+        //setZoomLevel(zoomLevels[zoomLevelIndex]);
 
     } else {
         // Check Zoom Level Index
         if (zoomLevelIndex < DEFAULT_ZOOM_LEVEL_INDEX_MAX) {
             //qDebug() << "MainWindow::zoomIn";
 
-            // Inz Zoom Level Index
-            zoomLevelIndex++;
+            // Set Zoom Level Index
+            setZoomLevelIndex(zoomLevelIndex + 1);
 
-            // Set Zoom Level
-            setZoomLevel(zoomLevels[zoomLevelIndex]);
+//            // Inc Zoom Level Index
+//            zoomLevelIndex++;
+
+//            // Set Zoom Level
+//            setZoomLevel(zoomLevels[zoomLevelIndex]);
         }
     }
 
@@ -866,26 +929,32 @@ void MainWindow::zoomOut()
         // reset Zoom Fit
         zoomFit = false;
         // Reset Zoom Level Index
-        zoomLevelIndex = DEFAULT_ZOOM_LEVEL_INDEX_MAX;
+        int newZoomLevelIndex = DEFAULT_ZOOM_LEVEL_INDEX_MAX;
 
-        while (zoomLevels[zoomLevelIndex] > zoomLevel && zoomLevelIndex > 0) {
+        while (zoomLevels[newZoomLevelIndex] > zoomLevel && newZoomLevelIndex > 0) {
             // Dec Zoom Level Index
-            zoomLevelIndex--;
+            newZoomLevelIndex--;
         }
 
+        // Set Zoom Level Index
+        setZoomLevelIndex(newZoomLevelIndex);
+
         // Set Zoom Level
-        setZoomLevel(zoomLevels[zoomLevelIndex]);
+        //setZoomLevel(zoomLevels[zoomLevelIndex]);
 
     } else {
         // Check Zoom Level Index
         if (zoomLevelIndex > 0) {
             //qDebug() << "MainWindow::zoomOut";
 
+            // Set Zoom Level Index
+            setZoomLevelIndex(zoomLevelIndex - 1);
+
             // Dec Zoom Level Index
-            zoomLevelIndex--;
+            //zoomLevelIndex--;
 
             // Set Zoom Level
-            setZoomLevel(zoomLevels[zoomLevelIndex]);
+            //setZoomLevel(zoomLevels[zoomLevelIndex]);
         }
     }
 
@@ -903,10 +972,13 @@ void MainWindow::zoomDefault()
     zoomFit = false;
 
     // Set Zoom Level Index
-    zoomLevelIndex = DEFAULT_ZOOM_LEVEL_INDEX;
+    setZoomLevelIndex(DEFAULT_ZOOM_LEVEL_INDEX, true);
 
-    // Set Zoom Level
-    setZoomLevel(zoomLevels[zoomLevelIndex]);
+//    // Set Zoom Level Index
+//    zoomLevelIndex = DEFAULT_ZOOM_LEVEL_INDEX;
+
+//    // Set Zoom Level
+//    setZoomLevel(zoomLevels[zoomLevelIndex]);
 
     // Configure Menu
     updateMenu();
@@ -1216,7 +1288,7 @@ void MainWindow::handleFileOpenEvent(const QString& aFileName)
     qDebug() << "MainWindow::handleFileOpenEvent - aFileName: " << aFileName;
 
     // Show Status Text
-    //showStatusText(aFileName);
+    showStatusText(aFileName);
 
     // Launch Viewer
     //launchViewer(aFileName);
@@ -1637,6 +1709,11 @@ void MainWindow::keyReleaseEvent(QKeyEvent* aEvent)
                 QApplication::exit();
             break;
 
+            case Qt::Key_G:
+                // Toggle Show Grid
+                setShowGrid(!showGrid);
+            break;
+
             case Qt::Key_L:
                 if (aEvent->modifiers() & Qt::ShiftModifier && aEvent->modifiers() & Qt::AltModifier) {
                     // Reset Left Image
@@ -1649,6 +1726,11 @@ void MainWindow::keyReleaseEvent(QKeyEvent* aEvent)
                     // Reset Right Image
                     setCurrentFileRight("");
                 }
+            break;
+
+            case Qt::Key_S:
+                // Toggle Hide Compare Sources
+                setHideSources(!hideSources);
             break;
 
             default:

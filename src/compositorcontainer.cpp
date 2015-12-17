@@ -137,7 +137,7 @@ void CompositorContainer::setThreshold(const qreal& aThreshold)
 
     // Check Compare Threshold
     if (threshold != newThreshold) {
-        qDebug() << "CompositorContainer::setThreshold - newThreshold: " << newThreshold;
+        //qDebug() << "CompositorContainer::setThreshold - newThreshold: " << newThreshold;
         // Set Compare Threshold
         threshold = newThreshold;
         // Emit Compare Threshold Changed Signal

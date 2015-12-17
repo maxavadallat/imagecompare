@@ -121,6 +121,9 @@
          </property>
          <item>
           <widget class="QPushButton" name="resetButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
@@ -138,6 +141,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="zoomOutButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
@@ -155,6 +161,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="zoomInButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
@@ -172,6 +181,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="zoomToFitButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>

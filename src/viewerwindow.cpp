@@ -7,6 +7,7 @@
 #include "mainwindow.h"
 #include "viewerwindow.h"
 #include "constants.h"
+#include "defaultsettings.h"
 
 #include "ui_viewerwindow.h"
 

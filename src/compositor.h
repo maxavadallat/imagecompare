@@ -41,6 +41,7 @@ class Compositor : public QQuickPaintedItem
     Q_PROPERTY(QString currentFileLeft READ getCurrentFileLeft WRITE setCurrentFileLeft NOTIFY currentFileLeftChanged)
     Q_PROPERTY(QString currentFileRight READ getCurrentFileRight WRITE setCurrentFileRight NOTIFY currentFileRightChanged)
 
+    Q_PROPERTY(int zoomLevelIndex READ getZoomLevelIndex WRITE setZoomLevelIndex NOTIFY zoomLevelIndexChanged)
     Q_PROPERTY(qreal zoomLevel READ getZoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
 
     Q_PROPERTY(qreal panPosX READ getPanPosX WRITE setPanPosX NOTIFY panPosXChanged)
@@ -53,6 +54,8 @@ class Compositor : public QQuickPaintedItem
     Q_PROPERTY(qreal compositeHeight READ getCompositeHeight NOTIFY compositeHeightChanged)
 
     Q_PROPERTY(qreal threshold READ getThreshold WRITE setThreshold NOTIFY thresholdChanged)
+
+    Q_PROPERTY(bool showGrid READ getShowGrid WRITE setShowGrid NOTIFY showGridChanged)
 
 public:
 
@@ -97,6 +100,11 @@ public:
     // Set Current File Right
     void setCurrentFileRight(const QString& aCurrentFile);
 
+    // Get Zoom Level Index
+    int getZoomLevelIndex();
+    // Set Zoom Level Index
+    void setZoomLevelIndex(const int& aZoomLevelIndex);
+
     // Set Zoom Level
     void setZoomLevel(const qreal& aZoomLevel);
     // Get Zoom Level
@@ -116,6 +124,11 @@ public:
     qreal getThreshold();
     // Set Threshold
     void setThreshold(const qreal& aThreshold);
+
+    // Get Show Grid
+    bool getShowGrid();
+    // Set Show Grid
+    void setShowGrid(const bool& aShowGrid);
 
     // Paint
     virtual void paint(QPainter* aPainter);
@@ -148,6 +161,8 @@ signals:
     // Current Right File Changed Signal
     void currentFileRightChanged(const QString& aCurrentFile);
 
+    // Zoom Level Index Changed Signal
+    void zoomLevelIndexChanged(const int& aZoomLevelIndex);
     // Zoom Level Changed Signal
     void zoomLevelChanged(const qreal& aZoomLevel);
 
@@ -158,6 +173,9 @@ signals:
 
     // Threshold Changed Signal
     void thresholdChanged(const qreal& aThreshold);
+
+    // Show Grid Changed Signal
+    void showGridChanged(const bool& aShowGrid);
 
     // Operate Worker Signel
     void operateWorker(const int& aOperation);
@@ -199,6 +217,9 @@ protected:
 
     // Notify Composite Sizes Changed
     void notifyCompositeSizesChanged();
+
+    // Update Positions: Center, TopLeft, GridStart
+    void updatePositions(const bool& aHorizontal = true, const bool& aVertical = true);
 
     // Stop Worker Thread
     void stopWorkerThread();
@@ -250,6 +271,8 @@ private:
     // Right Target Rect
     QRectF              targetRectRight;
 
+    // Zoom Level Index
+    int                 zoomLevelIndex;
     // Zoom Level
     qreal               zoomLevel;
     // Pan Pos X
@@ -257,8 +280,34 @@ private:
     // Pan Pos Y
     qreal               panPosY;
 
+    // Most Left Visible Pixel of the Composed Image
+    qreal               left;
+    // Most Top Visible Pixel of the Composed Image
+    qreal               top;
+    // Horizontal Center Pixel of the Composed Image
+    qreal               centerX;
+    // Vertical Center Pixel of the Composed Image
+    qreal               centerY;
+
     // Compare Threshold
     qreal               threshold;
+    // Show Grid
+    bool                showGrid;
+    // Grid Step
+    int                 gridStep;
+
+    // Grid Normal Pen
+    QPen                gridPen;
+    // Grid Section Pen
+    QPen                gridSectionPen;
+
+    // Grid Start X
+    qreal               gridStartX;
+    // Grid Start Y
+    qreal               gridStartY;
+
+    // Grid Section Width
+    qreal               gridSectionWidth;
 
     // Worker Thread
     QThread             workerThread;

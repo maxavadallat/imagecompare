@@ -77,10 +77,14 @@
 
 // Default Settings Values
 
-#define DEFAULT_ZOOM_LEVEL_INDEX                        4
 #define DEFAULT_ZOOM_LEVEL_INDEX_MAX                    6
 
-const qreal zoomLevels[] = { 0.10, 0.25, 0.50, 0.75, 1.00, 2.00, 4.00, 8.00, 16.00, 100.00};
+// Zoom Levels
+const qreal zoomLevels[]     =    { 0.10, 0.25, 0.50, 0.75, 1.00, 2.00, 4.00, 8.00, 16.00, 32.00 };
+// Grid Steps
+const int gridSteps[]        =    {    1,    1,    1,    1,   10,   20,   40,   80,   160,   320 };
+// Grid Section Steps
+const int gridSectionSteps[] =    {    1,    1,    1,    1,   40,   80,  160,  320,   640,  1280 };
 
 
 #define DEFAULT_STATUS_TEXT_SHOW_TIMEOUT                3000
@@ -117,6 +121,15 @@ enum RotationDirectionType
 
 #define DEFAULT_COMPARE_THRESHOLD                       50.0
 #define DEFAULT_COMPARE_THRESHOLD_MAX                   100.0
+
+#define DEFAULT_GRID_COLOR                              qRgba(200, 200, 255, 20)
+#define DEFAULT_GRID_WIDTH                              1.0
+#define DEFAULT_GRID_SECTION_MARKER_COLOR               qRgba(255, 200, 200, 80)
+#define DEFAULT_GRID_SECTION_MARKER_WIDTH               2.0
+
+
+// ...
+
 
 #endif // CONSTANTS_H
 

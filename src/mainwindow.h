@@ -41,7 +41,8 @@ class MainWindow : public QMainWindow
     Q_PROPERTY(qreal opacityLeft READ getPpacityLeft WRITE setOpacityLeft NOTIFY opacityLeftChanged)
     Q_PROPERTY(qreal opacityRight READ getOpacityRight WRITE setOpacityRight NOTIFY opacityRightChanged)
 
-    Q_PROPERTY(qreal zoomLevel READ getZoomLevel /*WRITE setZoomLevel*/ NOTIFY zoomLevelChanged)
+    Q_PROPERTY(int zoomLevelIndex READ getZoomLevelIndex NOTIFY zoomLevelIndexChanged)
+    Q_PROPERTY(qreal zoomLevel READ getZoomLevel NOTIFY zoomLevelChanged)
 
     Q_PROPERTY(qreal panPosX READ getPanPosX WRITE setPanPosY NOTIFY panPosXChanged)
     Q_PROPERTY(qreal panPosY READ getPanPosY WRITE setPanPosY NOTIFY panPosYChanged)
@@ -49,6 +50,8 @@ class MainWindow : public QMainWindow
     Q_PROPERTY(qreal threshold READ getThreshold WRITE setThreshold NOTIFY thresholdChanged)
 
     Q_PROPERTY(bool hideSources READ getHideSources WRITE setHideSources NOTIFY hideSourcesChanged)
+
+    Q_PROPERTY(bool showGrid READ getShowGrid WRITE setShowGrid NOTIFY showGridChanged)
 
 public:
 
@@ -82,6 +85,8 @@ public:
     // Set Right Image Opacity for Compositor View
     void setOpacityRight(const qreal& aOpacity);
 
+    // Get Zoom Level Index
+    int getZoomLevelIndex();
     // Get Zoom Level
     qreal getZoomLevel();
 
@@ -104,6 +109,11 @@ public:
     bool getHideSources();
     // Set Hide Sources
     void setHideSources(const bool& aHideSources);
+
+    // Get Show Grid
+    bool getShowGrid();
+    // Set Show Grid
+    void setShowGrid(const bool& aShowGrid);
 
 protected:
 
@@ -187,6 +197,8 @@ signals:
     // Right Image Opacity Changed Signal
     void opacityRightChanged(const qreal& aOpacityRight);
 
+    // Zoom Level Index Changed Signal
+    void zoomLevelIndexChanged(const int& aZoomLevelIndex);
     // Zoom Level Changed Signal
     void zoomLevelChanged(const qreal& aZoomLevel);
 
@@ -200,6 +212,9 @@ signals:
 
     // Hide Sources Changed Signal
     void hideSourcesChanged(const bool& aHideSources);
+
+    // Show Grid Changed Signal
+    void showGridChanged(const bool& aShowGrid);
 
     // Current File Updated Signal
     void currentFileUdated();
@@ -241,6 +256,8 @@ private slots:
     // Side Viev Double Clicked Slot
     void sideViewDoubleClicked(const QString& aSide);
 
+    // Set Zoom Level Index
+    void setZoomLevelIndex(const int& aZoomLevelIndex, const bool& aForce = false);
     // Set Zoom Level
     void setZoomLevel(const qreal& aZoomLevel);
 
@@ -386,6 +403,9 @@ private:
 
     // Hide Sources In Compare View
     bool                            hideSources;
+
+    // Show Grid
+    bool                            showGrid;
 
     // Viewer Window
     ViewerWindow*                   viewerWindow;

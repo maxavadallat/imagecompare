@@ -161,9 +161,9 @@ Item {
 
                 lowp vec4 result;
 
-                result.r = (abs(leftTexture.r - rightTexture.r) - (1.0 - threshold * 0.01)) * 10.0;
-                result.g = (abs(leftTexture.g - rightTexture.g) - (1.0 - threshold * 0.01)) * 10.0;
-                result.b = (abs(leftTexture.b - rightTexture.b) - (1.0 - threshold * 0.01)) * 10.0;
+                result.r = (abs(leftTexture.r - rightTexture.r) - (threshold * 0.01)) * 10.0;
+                result.g = (abs(leftTexture.g - rightTexture.g) - (threshold * 0.01)) * 10.0;
+                result.b = (abs(leftTexture.b - rightTexture.b) - (threshold * 0.01)) * 10.0;
                 result.a = 0.5;
 
                 gl_FragColor = result;
@@ -190,6 +190,10 @@ Item {
 
         panPosX: mainViewController.panPosX
         panPosY: mainViewController.panPosY
+
+        showGrid: mainViewController.showGrid
+
+        zoomLevelIndex: mainViewController.zoomLevelIndex
 
         onStatusChanged: {
             //console.log("compositor.onStatusChanged - status: " + compositor.status + " - operation: " + compositor.operation);
@@ -226,7 +230,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 72
-        opacity: compareShader.visible && compositorViewController.rightPressed ? 1.0 : 0.0
+        opacity: compositorViewController.rightPressed ? 1.0 : 0.0
     }
 
     Column {

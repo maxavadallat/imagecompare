@@ -25,12 +25,29 @@ Compositor::Compositor(QQuickItem* aParent)
     , imageScaledRight(QImage())
     , sourceRectRight(QRect(0, 0, 0, 0))
     , targetRectRight(QRect(0, 0, 0, 0))
-    , zoomLevel(1.0)
-    , panPosX(0)
-    , panPosY(0)
+    , zoomLevelIndex(DEFAULT_ZOOM_LEVEL_INDEX)
+    , zoomLevel(zoomLevels[zoomLevelIndex])
+    , panPosX(0.0)
+    , panPosY(0.0)
     , threshold(DEFAULT_COMPARE_THRESHOLD)
+    , showGrid(false)
+    , gridStep(gridSteps[zoomLevelIndex])
+    , gridPen(QBrush(QColor::fromRgba(DEFAULT_GRID_COLOR)), DEFAULT_GRID_WIDTH)
+    , gridSectionPen(QBrush(QColor::fromRgba(DEFAULT_GRID_SECTION_MARKER_COLOR)), DEFAULT_GRID_SECTION_MARKER_WIDTH)
+    , gridStartX(0.0)
+    , gridStartY(0.0)
+    , gridSectionWidth(gridSectionSteps[zoomLevelIndex])
     , worker(NULL)
 {
+    // Set Antialiasing
+    setAntialiasing(false);
+
+    // Set Mipmap
+    //setMipmap(false);
+
+    // Set Smoothing
+    setSmooth(false);
+
     // ...
 }
 
@@ -202,6 +219,9 @@ void Compositor::setCurrentFileLeft(const QString& aCurrentFile)
         // Notify Composite Sizes Changed
         notifyCompositeSizesChanged();
 
+        // Update Positions
+        //updatePositions();
+
         // Init Worker
         initWorker();
         // Emit Signal to Start Operation
@@ -247,12 +267,49 @@ void Compositor::setCurrentFileRight(const QString& aCurrentFile)
         // Notify Composite Sizes Changed
         notifyCompositeSizesChanged();
 
+        // Update Positions
+        //updatePositions();
+
         // Init Worker
         initWorker();
         // Emit Signal to Start Operation
         emit operateWorker(COTScaleRightImage);
 
         // ...
+    }
+}
+
+//==============================================================================
+// Get Zoom Level Index
+//==============================================================================
+int Compositor::getZoomLevelIndex()
+{
+    return zoomLevelIndex;
+}
+
+//==============================================================================
+// Set Zoom Level Index
+//==============================================================================
+void Compositor::setZoomLevelIndex(const int& aZoomLevelIndex)
+{
+    // Check Zoom Level Index
+    if (zoomLevelIndex != aZoomLevelIndex) {
+        qDebug() << "Compositor::setZoomLevelIndex - aZoomLevelIndex: " << aZoomLevelIndex;
+        // Set Zoom Level Index
+        zoomLevelIndex = aZoomLevelIndex;
+        // Emit Zoom Level Index Changed Signal
+        emit zoomLevelIndexChanged(zoomLevelIndex);
+
+        // Set Grid Step
+        gridStep = gridSteps[zoomLevelIndex];
+        // Calculate Grid Section Width
+        gridSectionWidth = gridSectionSteps[zoomLevelIndex];
+
+        // Set Zoom Level
+        setZoomLevel(zoomLevels[zoomLevelIndex]);
+
+        // Update Positions
+        //updatePositions();
     }
 }
 
@@ -325,6 +382,9 @@ void Compositor::setPanPosX(const qreal& aPanPosX)
         // Emit Pan Pos X Changed Signal
         emit panPosXChanged(panPosX);
 
+        // Update Horizontal Positions
+        updatePositions(true, false);
+
         // Init Worker
         initWorker();
         // Emit Signal to Start Operation
@@ -364,6 +424,9 @@ void Compositor::setPanPosY(const qreal& aPanPosY)
         // Emit Pan Pos X Changed Signal
         emit panPosYChanged(panPosY);
 
+        // Update Vertical Positions
+        updatePositions(false, true);
+
         // Init Worker
         initWorker();
         // Emit Signal to Start Operation
@@ -396,6 +459,32 @@ void Compositor::setThreshold(const qreal& aThreshold)
 }
 
 //==============================================================================
+// Get Show Grid
+//==============================================================================
+bool Compositor::getShowGrid()
+{
+    return showGrid;
+}
+
+//==============================================================================
+// Set Show Grid
+//==============================================================================
+void Compositor::setShowGrid(const bool& aShowGrid)
+{
+    // Check Show Grid
+    if (showGrid != aShowGrid) {
+        qDebug() << "Compositor::setShowGrid - aShowGrid: " << aShowGrid;
+        // Set Show Grid
+        showGrid = aShowGrid;
+        // Emit Show Grid changed Signal
+        emit showGridChanged(showGrid);
+
+        // Update
+        update();
+    }
+}
+
+//==============================================================================
 // Paint
 //==============================================================================
 void Compositor::paint(QPainter* aPainter)
@@ -423,15 +512,75 @@ void Compositor::paint(QPainter* aPainter)
             aPainter->drawImage(targetRectRight, imageScaledRight, sourceRectRight);
         }
 */
-/*
-        // Set Pen
-        aPainter->setPen(Qt::NoPen);
-        // Set Brush
-        aPainter->setBrush(QColor::fromRgba(match ? DEFAULT_COLOR_IMAGE_COMPARE_MATCH : DEFAULT_COLOR_IMAGE_COMPARE_NOMATCH));
+        // Check Show Grid
+        if (showGrid && zoomLevel >= zoomLevels[DEFAULT_ZOOM_LEVEL_INDEX]) {
 
-        // Draw Overlay Rect
-        aPainter->drawRect(boundingRect());
+            //qDebug() << "boundingRect: " << boundingRect();
+
+            //aPainter
+
+            // Set Pen
+            aPainter->setPen(gridPen);
+            aPainter->setBrush(Qt::NoBrush);
+
+            // ...
+
+            // Iterate for Vertical Grid Lines
+            for (int x = gridStartX, n = 0; x < boundingRect().width(); x += gridStep, n++) {
+
+                // Check for Setion Marker
+                if (n > 0 && ((n % 4) == 0) && (x + gridSectionWidth >= 0)) {
+
+                    // Set Pen
+                    aPainter->setPen(gridSectionPen);
+                    // Draw Vertical Lines
+                    aPainter->drawRect(QRect(x, -1, gridSectionWidth, boundingRect().height() + 2));
+
+                } else if (x + gridStep >= 0) {
+                    // Set Pen
+                    aPainter->setPen(gridPen);
+                    // Draw Vertical Lines
+                    aPainter->drawRect(QRect(x, -1, gridStep, boundingRect().height() + 2));
+                }
+            }
+
+            // Iterate for Horizontal Grid Lines
+            for (int y = gridStartY, m = 0; y < boundingRect().height(); y += gridStep, m++) {
+
+                // Check for Setion Marker
+                if (m > 0 && ((m % 4) == 0) && (y + gridSectionWidth >= 0)) {
+
+                    // Set Pen
+                    aPainter->setPen(gridSectionPen);
+                    // Draw Horizontal Lines
+                    aPainter->drawRect(QRect(-1 , y, boundingRect().width() + 2, gridSectionWidth));
+
+                } else if (y + gridStep >= 0) {
+                    // Set Pen
+                    aPainter->setPen(gridPen);
+                    // Draw Horizontal Lines
+                    aPainter->drawRect(QRect(-1, y, boundingRect().width() + 2, gridStep));
+                }
+/*
+                // Check Y Pos
+                if (y + gridSteps[zoomLevelIndex] >= 0) {
+                    // Set Pen
+                    aPainter->setPen(gridPen);
+                    // Draw Horizontal Lines
+                    aPainter->drawRect(QRect(-1, y, boundingRect().width() + 2, gridSteps[zoomLevelIndex]));
+                }
+
+                // Check for Setion Marker
+                if (m > 0 && (m ^ 4) == 0 && (y + gridSteps[zoomLevelIndex] * 4 >= 0)) {
+                    // Set Pen
+                    aPainter->setPen(gridSectionPen);
+                    // Draw Horizontal Lines
+                    aPainter->drawRect(QRect(-1, y, boundingRect().width() + 2, gridSteps[zoomLevelIndex] * 4));
+                }
 */
+            }
+        }
+
         // Restore Painter
         aPainter->restore();
     }
@@ -617,6 +766,42 @@ void Compositor::notifyCompositeSizesChanged()
 }
 
 //==============================================================================
+// Update Positions: Center, TopLeft, GridStart
+//==============================================================================
+void Compositor::updatePositions(const bool& aHorizontal, const bool& aVertical)
+{
+    //qDebug() << "Compositor::updatePositions - aHorizontal: " << aHorizontal << " - aVertical: " << aVertical;
+
+    // Check Horizontal
+    if (aHorizontal) {
+        // Calculate Most Left Visible Pixel
+        left = (boundingRect().width() - getCompositeWidth()) / 2 + panPosX;
+
+        // Calculate Image Center X
+        centerX = left + getCompositeWidth() / 2;
+
+        // Calculate Grid Start X
+        gridStartX = left;
+
+        qDebug() << "left: " << left << " centerX: " << centerX << " gridStartX: " << gridStartX;
+    }
+
+    // Check Vertical
+    if (aVertical) {
+        // Calculate Most Top Visible Pixel
+        top = (boundingRect().height() - getCompositeHeight()) / 2 + panPosY;
+
+        // Calculate Image Center Y
+        centerY = top + getCompositeHeight() / 2;
+
+        // Calculate Grid Start Y
+        gridStartY = top;
+
+        qDebug() << "top: " << top << " centerY: " << centerY << "gridStartY: " << gridStartY;
+    }
+}
+
+//==============================================================================
 // Stop Worker Thread
 //==============================================================================
 void Compositor::stopWorkerThread()
@@ -649,6 +834,9 @@ void Compositor::workerResultReady(const int& aOperation, const int& aResult)
             notifyCompositeSizesChanged();
             // Set Status
             setStatus(CSIdle);
+
+            // Update Positions
+            updatePositions();
 
             // ...
 
