@@ -76,8 +76,12 @@ MainWindow::MainWindow(QWidget* aParent)
     , zoomFit(false)
     , zoomLevelIndex(DEFAULT_ZOOM_LEVEL_INDEX)
     , zoomLevel(zoomLevels[zoomLevelIndex])
+    , prevZoomLevel(zoomLevels[zoomLevelIndex])
     , panPosX(0.0)
     , panPosY(0.0)
+    , prevPanPosX(0.0)
+    , prevPanPosY(0.0)
+    , manualPanning(false)
     , threshold(DEFAULT_COMPARE_THRESHOLD)
     , hideSources(false)
     , showGrid(false)
@@ -140,6 +144,9 @@ void MainWindow::init()
     connect(ui->centerView, SIGNAL(mousePressed(QPoint)), this, SLOT(panStart(QPoint)));
     connect(ui->centerView, SIGNAL(mouseMoved(QPoint)), this, SLOT(panMove(QPoint)));
     connect(ui->centerView, SIGNAL(mouseReleased(QPoint)), this, SLOT(panFinished(QPoint)));
+
+    connect(ui->centerView, SIGNAL(compositeWidthChanged(qreal)), this, SLOT(compositeWidthChanged(qreal)));
+    connect(ui->centerView, SIGNAL(compositeHeightChanged(qreal)), this, SLOT(compositeHeightChanged(qreal)));
 
     // ...
 
@@ -430,7 +437,14 @@ void MainWindow::setZoomLevel(const qreal& aZoomLevel)
 {
     // Check Current Zoom LEvel
     if (zoomLevel != aZoomLevel) {
-        //qDebug() << "MainWindow::setZoomLevel - aZoomLevel: " << aZoomLevel * 100 << "%";
+        qDebug() << "MainWindow::setZoomLevel - aZoomLevel: " << aZoomLevel * 100 << "%";
+
+        // Save Previous Zoom Level
+        prevZoomLevel = zoomLevel;
+        // Save Previous Pan Pos X
+        prevPanPosX = panPosX;
+        // Sev Previous Pan Pos Y
+        prevPanPosY = panPosY;
 
         // Set Zoom Level
         zoomLevel = aZoomLevel;
@@ -449,17 +463,130 @@ void MainWindow::setZoomLevel(const qreal& aZoomLevel)
 }
 
 //==============================================================================
+// Composite Width Changed Slot
+//==============================================================================
+void MainWindow::compositeWidthChanged(const qreal& aCompositeWidth)
+{
+    // Check Composite Width
+    if (compositeWidth != aCompositeWidth) {
+        qDebug() << "MainWindow::compositeWidthChanged - aCompositeWidth: " << aCompositeWidth;
+        // Set CompositeWidth
+        compositeWidth = aCompositeWidth;
+        // Update Pan Positions
+        updatePanPositions(true, false);
+    }
+}
+
+//==============================================================================
+// Composite height Changed Slot
+//==============================================================================
+void MainWindow::compositeHeightChanged(const qreal& aCompositeHeight)
+{
+    // Check Composite Height
+    if (compositeHeight != aCompositeHeight) {
+        qDebug() << "MainWindow::compositeHeightChanged - aCompositeHeight: " << aCompositeHeight;
+        // Set Composite Height
+        compositeHeight = aCompositeHeight;
+        // Update Pan Positions
+        updatePanPositions(false, true);
+    }
+}
+
+//==============================================================================
+// Get Bounded Pan Pos X
+//==============================================================================
+qreal MainWindow::boundedPanPosX(const qreal aPanPosX)
+{
+    // Check Center View
+    if (!ui->centerView) {
+        return 0.0;
+    }
+
+    // Calculate Boundary
+    qreal bound = qMax(compositeWidth / 2 - (qreal)ui->centerView->width() / 2, 0.0);
+
+    // Calculate Min Bound
+    qreal minBound = -bound;
+    // Calculate Max Bound
+    qreal maxBound = bound;
+
+    return qBound(minBound, aPanPosX, maxBound);
+}
+
+//==============================================================================
+// Get Bounded Pan Pos Y
+//==============================================================================
+qreal MainWindow::boundedPanPosY(const qreal aPanPosY)
+{
+    // Check Center View
+    if (!ui->centerView) {
+        return 0.0;
+    }
+
+    // Calculate Boundary
+    qreal bound = qMax(compositeHeight / 2 - (qreal)ui->centerView->height() / 2, 0.0);
+
+    // Calculate Min Bound
+    qreal minBound = -bound;
+    // Calculate Max Bound
+    qreal maxBound = bound;
+
+    // Get New Pan Pos Y
+    return qBound(minBound, aPanPosY, maxBound);
+}
+
+//==============================================================================
 // Update Pan Positions
 //==============================================================================
-void MainWindow::updatePanPositions()
+void MainWindow::updatePanPositions(const bool& aHorizontal, const bool& aVertical)
 {
-    qDebug() << "MainWindow::updatePanPositions";
+    qDebug() << "MainWindow::updatePanPositions - aHorizontal: " << aHorizontal << " - aVertical: " << aVertical;
 
-    // Set Pan Pos X for Boundaries Adjusted
-    setPanPosX(panPosX);
-    // Set Pan Pos Y for Boundaries Adjusted
-    setPanPosY(panPosY);
+    // Check If Horizontal Axis Needs Update
+    if (aHorizontal) {
 
+        // Check If Zoom Fit
+        if (zoomFit) {
+
+            // Reset Pan Pos X
+            setPanPosX(0.0);
+
+        // Check if Previous Zoom Level Is Greater than Current Zoom Level - Zoom Out
+        } else if (prevZoomLevel > zoomLevel) {
+
+            // Set Pan Pos X
+            setPanPosX(boundedPanPosX(prevPanPosX));
+
+        // Check If Previous Zoom Level Is Smaller than Current Zoom Level - Zoom In
+        } else if (prevZoomLevel < zoomLevel){
+
+            // ...
+
+        }
+    }
+
+    // Check If Vertical Axis Needs Update
+    if (aVertical) {
+
+        // Check If Zoom Fit
+        if (zoomFit) {
+
+            // Reset Pan Pos Y
+            setPanPosY(0.0);
+
+        // Check if Previous Zoom Level Is Greater than Current Zoom Level - Zoom Out
+        } else if (prevZoomLevel > zoomLevel) {
+
+            // Set Pan Pos Y
+            setPanPosY(boundedPanPosY(prevPanPosY));
+
+        // Check If Previous Zoom Level Is Smaller than Current Zoom Level - Zoom In
+        } else if (prevZoomLevel < zoomLevel){
+
+            // ...
+
+        }
+    }
 }
 
 //==============================================================================
@@ -475,31 +602,12 @@ qreal MainWindow::getPanPosX()
 //==============================================================================
 void MainWindow::setPanPosX(const qreal& aPanPosX)
 {
-    // Check Center View
-    if (!ui->centerView) {
-        return;
-    }
-
-    // Calculate Boundary
-    qreal bound = qMax(ui->centerView->getCompositeWidth() / 2 - (qreal)ui->centerView->width() / 2, 0.0);
-
-    //qDebug() << "MainWindow::setPanPosX - bound: " << bound;
-
-    // Calculate Min Bound
-    qreal minBound = -bound;
-    // Calculate Max Bound
-    qreal maxBound = bound;
-
-    // Get New Pan Pos X
-    qreal newPanPosX = qBound(minBound, aPanPosX, maxBound);
-
     // Check Current Pan Pos X
-    if (panPosX != newPanPosX) {
-        //qDebug() << "MainWindow::setPanPosX - newPanPosX: " << newPanPosX;
+    if (panPosX != aPanPosX) {
+        qDebug() << "MainWindow::setPanPosX - aPanPosX: " << aPanPosX;
 
         // Set Current Pan Pos X
-        //panPosX = aPanPosX;
-        panPosX = newPanPosX;
+        panPosX = aPanPosX;
 
         // Emit Pan Pos X Changed Signal
         emit panPosXChanged(panPosX);
@@ -524,30 +632,12 @@ qreal MainWindow::getPanPosY()
 //==============================================================================
 void MainWindow::setPanPosY(const qreal& aPanPosY)
 {
-    // Check Center View
-    if (!ui->centerView) {
-        return;
-    }
-
-    // Calculate Boundary
-    qreal bound = qMax(ui->centerView->getCompositeHeight() / 2 - (qreal)ui->centerView->height() / 2, 0.0);
-
-    //qDebug() << "MainWindow::setPanPosY - bound: " << bound;
-
-    // Calculate Min Bound
-    qreal minBound = -bound;
-    // Calculate Max Bound
-    qreal maxBound = bound;
-
-    // Get New Pan Pos Y
-    qreal newPanPosY = qBound(minBound, aPanPosY, maxBound);
-
     // Check Current Pan Pos X
-    if (panPosY != newPanPosY) {
-        //qDebug() << "MainWindow::setPanPosY - newPanPosY: " << newPanPosY;
+    if (panPosY != aPanPosY) {
+        qDebug() << "MainWindow::setPanPosY - aPanPosY: " << aPanPosY;
 
         // Set Current Pan Pos X
-        panPosY = newPanPosY;
+        panPosY = aPanPosY;
 
         // Emit Pan Pos X Changed Signal
         emit panPosYChanged(panPosY);
@@ -556,6 +646,28 @@ void MainWindow::setPanPosY(const qreal& aPanPosY)
 
         // Show Status Text
         //showStatusText(tr("Paning pos: ") + QString("[%1:%2]").arg(panPosX).arg(panPosY));
+    }
+}
+
+//==============================================================================
+// Get Manual Panning
+//==============================================================================
+bool MainWindow::getManualPanning()
+{
+    return manualPanning;
+}
+
+//==============================================================================
+// Set Manual Panning
+//==============================================================================
+void MainWindow::setManualPanning(const bool& aManualPanning)
+{
+    // Check Manual Panning
+    if (manualPanning != aManualPanning) {
+        // Set Manual Panning
+        manualPanning = aManualPanning;
+        // Emit Manual Panning Changed Signal
+        emit manualPanningChanged(manualPanning);
     }
 }
 
@@ -885,10 +997,6 @@ void MainWindow::zoomIn()
 
         // Set Zoom Level Index
         setZoomLevelIndex(newZoomLevelIndex);
-
-        // Set Zoom Level
-        //setZoomLevel(zoomLevels[zoomLevelIndex]);
-
     } else {
         // Check Zoom Level Index
         if (zoomLevelIndex < DEFAULT_ZOOM_LEVEL_INDEX_MAX) {
@@ -896,12 +1004,6 @@ void MainWindow::zoomIn()
 
             // Set Zoom Level Index
             setZoomLevelIndex(zoomLevelIndex + 1);
-
-//            // Inc Zoom Level Index
-//            zoomLevelIndex++;
-
-//            // Set Zoom Level
-//            setZoomLevel(zoomLevels[zoomLevelIndex]);
         }
     }
 
@@ -930,7 +1032,7 @@ void MainWindow::zoomOut()
         zoomFit = false;
         // Reset Zoom Level Index
         int newZoomLevelIndex = DEFAULT_ZOOM_LEVEL_INDEX_MAX;
-
+        // Iterate Through Zoom Levels
         while (zoomLevels[newZoomLevelIndex] > zoomLevel && newZoomLevelIndex > 0) {
             // Dec Zoom Level Index
             newZoomLevelIndex--;
@@ -938,10 +1040,6 @@ void MainWindow::zoomOut()
 
         // Set Zoom Level Index
         setZoomLevelIndex(newZoomLevelIndex);
-
-        // Set Zoom Level
-        //setZoomLevel(zoomLevels[zoomLevelIndex]);
-
     } else {
         // Check Zoom Level Index
         if (zoomLevelIndex > 0) {
@@ -949,12 +1047,6 @@ void MainWindow::zoomOut()
 
             // Set Zoom Level Index
             setZoomLevelIndex(zoomLevelIndex - 1);
-
-            // Dec Zoom Level Index
-            //zoomLevelIndex--;
-
-            // Set Zoom Level
-            //setZoomLevel(zoomLevels[zoomLevelIndex]);
         }
     }
 
@@ -1359,6 +1451,10 @@ void MainWindow::panStart(const QPoint& aPos)
 {
     //qDebug() << "MainWindow::panStart - aPos: " << aPos;
 
+    // Set Manual Panning
+    setManualPanning(true);
+
+
     // Set Pan Press X
     panPressX = aPos.x();
     // Set Pan Press Y
@@ -1380,9 +1476,10 @@ void MainWindow::panMove(const QPoint& aPos)
     //qDebug() << "MainWindow::panMove - aPos: " << aPos;
 
     // Set Pan Pos X
-    setPanPosX(aPos.x() - panPressX + panPosLastX);
+    setPanPosX(boundedPanPosX(aPos.x() - panPressX + panPosLastX));
+
     // Set Pan Pos Y
-    setPanPosY(aPos.y() - panPressY + panPosLastY);
+    setPanPosY(boundedPanPosY(aPos.y() - panPressY + panPosLastY));
 
     // ...
 }
@@ -1394,6 +1491,9 @@ void MainWindow::panFinished(const QPoint& aPos)
 {
     Q_UNUSED(aPos);
     //qDebug() << "MainWindow::panFinished - aPos: " << aPos;
+
+    // Reset Manual Panning
+    setManualPanning(false);
 
     // Reset Pan Press X
     panPressX = 0;

@@ -33,11 +33,15 @@ Item {
 
         width: sourceSize.width * mainViewController.zoomLevel
         height: sourceSize.height * mainViewController.zoomLevel
+
         Behavior on width { NumberAnimation { duration: Const.defaultAnimDuration } }
         Behavior on height { NumberAnimation { duration: Const.defaultAnimDuration } }
 
         anchors.horizontalCenterOffset: mainViewController.panPosX
         anchors.verticalCenterOffset: mainViewController.panPosY
+
+        Behavior on anchors.horizontalCenterOffset { NumberAnimation { duration: mainViewController.manualPanning ? 0 : Const.defaultAnimDuration } }
+        Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: mainViewController.manualPanning ? 0 : Const.defaultAnimDuration } }
 
         horizontalAlignment: Image.AlignHCenter
         verticalAlignment: Image.AlignVCenter

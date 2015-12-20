@@ -44,6 +44,10 @@ Item {
 
             anchors.horizontalCenterOffset: mainViewController.panPosX
             anchors.verticalCenterOffset: mainViewController.panPosY
+
+            Behavior on anchors.horizontalCenterOffset { NumberAnimation { duration: mainViewController.manualPanning ? 0 : Const.defaultAnimDuration } }
+            Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: mainViewController.manualPanning ? 0 : Const.defaultAnimDuration } }
+
             horizontalAlignment: Image.AlignHCenter
             verticalAlignment: Image.AlignVCenter
             fillMode: Image.Stretch
@@ -92,6 +96,9 @@ Item {
 
             anchors.horizontalCenterOffset: mainViewController.panPosX
             anchors.verticalCenterOffset: mainViewController.panPosY
+
+            Behavior on anchors.horizontalCenterOffset { NumberAnimation { duration: mainViewController.manualPanning ? 0 : Const.defaultAnimDuration } }
+            Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: mainViewController.manualPanning ? 0 : Const.defaultAnimDuration } }
 
             horizontalAlignment: Image.AlignHCenter
             verticalAlignment: Image.AlignVCenter
@@ -186,6 +193,8 @@ Item {
         currentFileLeft: mainViewController.currentFileLeft
         currentFileRight: mainViewController.currentFileRight
 
+        zoomLevelIndex: mainViewController.zoomLevelIndex
+
         zoomLevel: mainViewController.zoomLevel
 
         panPosX: mainViewController.panPosX
@@ -193,16 +202,14 @@ Item {
 
         showGrid: mainViewController.showGrid
 
-        zoomLevelIndex: mainViewController.zoomLevelIndex
-
         onStatusChanged: {
             //console.log("compositor.onStatusChanged - status: " + compositor.status + " - operation: " + compositor.operation);
 
-            // Check Last Operation
-            if (compositor.operation === 1 && compositor.status === 0) {
-                // Update Pan Positions
-                mainViewController.updatePanPositions();
-            }
+//            // Check Last Operation
+//            if (compositor.operation === 1 && compositor.status === 0) {
+//                // Update Pan Positions
+//                mainViewController.updatePanPositions();
+//            }
         }
 
         onCompositeWidthChanged: {

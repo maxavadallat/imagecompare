@@ -783,7 +783,7 @@ void Compositor::updatePositions(const bool& aHorizontal, const bool& aVertical)
         // Calculate Grid Start X
         gridStartX = left;
 
-        qDebug() << "left: " << left << " centerX: " << centerX << " gridStartX: " << gridStartX;
+        //qDebug() << "left: " << left << " centerX: " << centerX << " gridStartX: " << gridStartX;
     }
 
     // Check Vertical
@@ -797,7 +797,7 @@ void Compositor::updatePositions(const bool& aHorizontal, const bool& aVertical)
         // Calculate Grid Start Y
         gridStartY = top;
 
-        qDebug() << "top: " << top << " centerY: " << centerY << "gridStartY: " << gridStartY;
+        //qDebug() << "top: " << top << " centerY: " << centerY << "gridStartY: " << gridStartY;
     }
 }
 

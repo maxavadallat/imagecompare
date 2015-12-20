@@ -47,6 +47,8 @@ class MainWindow : public QMainWindow
     Q_PROPERTY(qreal panPosX READ getPanPosX WRITE setPanPosY NOTIFY panPosXChanged)
     Q_PROPERTY(qreal panPosY READ getPanPosY WRITE setPanPosY NOTIFY panPosYChanged)
 
+    Q_PROPERTY(bool manualPanning READ getManualPanning NOTIFY manualPanningChanged)
+
     Q_PROPERTY(qreal threshold READ getThreshold WRITE setThreshold NOTIFY thresholdChanged)
 
     Q_PROPERTY(bool hideSources READ getHideSources WRITE setHideSources NOTIFY hideSourcesChanged)
@@ -99,6 +101,9 @@ public:
     qreal getPanPosY();
     // Set Pan Pos Y
     void setPanPosY(const qreal& aPanPosY);
+
+    // Get Manual Panning
+    bool getManualPanning();
 
     // Get Threshold
     qreal getThreshold();
@@ -180,9 +185,6 @@ public slots:
     // Reset Zoom & Pan Position
     void reset();
 
-    // Update Pan Positions
-    void updatePanPositions();
-
 signals:
 
     // Current Dir Changed Signal
@@ -206,6 +208,9 @@ signals:
     void panPosXChanged(const qreal& aPanPosX);
     // Pan Pos Y Changed Signal
     void panPosYChanged(const qreal& aPanPosY);
+
+    // Manual Panning Changed Signal
+    void manualPanningChanged(const bool& aManualPanning);
 
     // Threshold Changed Signal
     void thresholdChanged(const qreal& aThreshold);
@@ -251,6 +256,9 @@ private slots:
     // Pan Finished Slot
     void panFinished(const QPoint& aPos);
 
+    // Set Manual Panning
+    void setManualPanning(const bool& aManualPanning);
+
     // Compositor Double Clicked Slot
     void compositorDoubleClicked();
     // Side Viev Double Clicked Slot
@@ -260,6 +268,19 @@ private slots:
     void setZoomLevelIndex(const int& aZoomLevelIndex, const bool& aForce = false);
     // Set Zoom Level
     void setZoomLevel(const qreal& aZoomLevel);
+
+    // Composite Width Changed Slot
+    void compositeWidthChanged(const qreal& aCompositeWidth);
+    // Composite height Changed Slot
+    void compositeHeightChanged(const qreal& aCompositeHeight);
+
+    // Get Bounded Pan Pos X
+    qreal boundedPanPosX(const qreal aPanPosX);
+    // Get Bounded Pan Pos Y
+    qreal boundedPanPosY(const qreal aPanPosY);
+
+    // Update Pan Positions
+    void updatePanPositions(const bool& aHorizontal = true, const bool& aVertical = true);
 
     // Open Left File Button Clicked Slot
     void on_openLeftButton_clicked();
@@ -314,14 +335,6 @@ private slots:
     // Exit Button Clicked Slot
     void on_exitButton_clicked();
 
-protected:
-
-    // Timer Event
-    virtual void timerEvent(QTimerEvent* aEvent);
-
-    // Mouse Wheel Event
-    virtual void wheelEvent(QWheelEvent* aEvent);
-
 private:
     friend class Worker;
 
@@ -352,6 +365,12 @@ protected:
     // Key Release Event
     virtual void keyReleaseEvent(QKeyEvent* aEvent);
 
+    // Timer Event
+    virtual void timerEvent(QTimerEvent* aEvent);
+
+    // Mouse Wheel Event
+    virtual void wheelEvent(QWheelEvent* aEvent);
+
 private:
 
     // UI
@@ -380,6 +399,8 @@ private:
     int                             zoomLevelIndex;
     // Zoom Level
     qreal                           zoomLevel;
+    // Previous Zoom Level
+    qreal                           prevZoomLevel;
 
     // Pan Press X
     qreal                           panPressX;
@@ -395,6 +416,19 @@ private:
     qreal                           panPosX;
     // Pan Pos Y
     qreal                           panPosY;
+
+    // Previous Pan Pos X
+    qreal                           prevPanPosX;
+    // Previous Pan Pos Y
+    qreal                           prevPanPosY;
+
+    // Manual Panning
+    bool                            manualPanning;
+
+    // Composite Width
+    qreal                           compositeWidth;
+    // Composite Height
+    qreal                           compositeHeight;
 
     // Last Threshold
     qreal                           lastThreshold;
